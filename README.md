@@ -1,3 +1,37 @@
+# Green & Tasty — Restaurant Booking & Pre-Order App
+
+Full-stack restaurant table booking and pre-order application, built for **EPAM Campus IT Marathon 6.0**.
+Customers book tables, pre-order dishes, and can split a reservation into a **group order** where each
+guest builds their own cart before the table owner reviews and submits one consolidated pre-order to
+the kitchen. Waiters get a dashboard to manage reservations, confirm or cancel individual dishes, and
+mark service complete.
+
+## Features
+
+- **Table booking** — browse available tables by time slot, location and party size; create, edit, cancel reservations.
+- **Pre-ordering** — add dishes to a reservation ahead of time, edit the cart up to a configurable cutoff before the reservation starts.
+- **Group reservations** — the table owner invites guests via a shareable link; each guest gets their own cart and can submit it independently; the owner reviews everyone's picks, removes items if needed, and submits one consolidated order for the whole table.
+- **Waiter dashboard** — manage assigned reservations, confirm/cancel pre-ordered dishes, edit table/time, generate post-visit reports.
+- **Role-based access** — Customer and Waiter roles via AWS Cognito groups, enforced on both routes and business logic.
+- **Security-hardened backend** — went through a structured vulnerability audit (authorization/IDOR checks, race-condition mitigations on shared counters, consistent business-rule enforcement across every pre-order code path) before this was made public.
+
+## Tech stack
+
+- **Frontend** — Angular 22 (standalone components, signals), SCSS
+- **Backend** — .NET 10 on AWS Lambda, DynamoDB, API Gateway (REST), AWS Cognito
+- **Infrastructure** — Terraform (shared AWS infra: CloudFront, Cognito, S3, EventBridge) + AWS Syndicate (serverless backend deploy)
+
+## Repository layout
+
+```
+frontend/restaurant-frontend-app/   Angular SPA
+backend/restaurant-backend-app/     .NET Lambda backend (API + handlers + services)
+infra/terraform/                    Shared AWS infrastructure (IaC)
+infra/dev-seed/                     Local dev data seeding scripts
+```
+
+---
+
 # Deployment Guide
 
 This repo uses three deployment tracks:
