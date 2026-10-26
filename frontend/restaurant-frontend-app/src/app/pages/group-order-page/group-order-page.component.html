@@ -1,0 +1,315 @@
+<app-header />
+
+<main class="group-order">
+  <div class="group-order__top">
+    <button type="button" class="group-order__back" (click)="goBack()">← My reservations</button>
+    <h1 class="group-order__title">Group pre-order</h1>
+  </div>
+
+  @switch (loadState()) {
+    @case ('loading') {
+      <p class="group-order__status" role="status">Loading the group order…</p>
+    }
+
+    @case ('error') {
+      <div class="group-order__status">
+        <p>We could not load the group order.</p>
+        <button type="button" class="button button--secondary button--large" (click)="load()">
+          Try again
+        </button>
+      </div>
+    }
+
+    @case ('ready') {
+      <section class="cart">
+        <div class="cart__body">
+          @if (banner(); as bannerView) {
+            <div class="banner banner--{{ bannerView.kind }}" role="status">
+              {{ bannerView.text }}
+            </div>
+          }
+
+          <section class="section">
+            <div class="section__head">
+              <h2 class="section__title">
+                My Pre-Order
+                @if (isOwnerSubmitted()) {
+                  <span class="badge badge--confirmed">Submitted</span>
+                }
+              </h2>
+              <span class="section__sum">{{ ownerTotal() | currency: 'USD' : 'symbol' : '1.0-2' }}</span>
+            </div>
+            @if (!isOwnerSubmitted()) {
+              <button type="button" class="btn" (click)="addDishes()">+ Add dishes from the menu</button>
+            } @else {
+              <p class="section__hint">
+                Your pre-order is locked. You can change it up to 30 minutes before the table time from
+                <a routerLink="/reservations">My reservations</a>.
+              </p>
+            }
+
+            @for (row of ownerRows(); track row.dishId) {
+              <div class="dish-card">
+                @if (row.imageUrl) {
+                  <img class="photo photo--56" [src]="row.imageUrl" alt="" />
+                } @else {
+                  <div class="photo photo--56" aria-hidden="true"></div>
+                }
+                <div class="dish-card__text">
+                  <div class="dish-card__name">{{ row.name }}</div>
+                  <div class="dish-card__meta">x{{ row.quantity }}</div>
+                </div>
+                <div class="dish-card__price">
+                  {{ row.lineTotal | currency: 'USD' : 'symbol' : '1.0-2' }}
+                </div>
+              </div>
+            } @empty {
+              <p class="section__hint">You have not picked any dishes for yourself yet.</p>
+            }
+          </section>
+
+          <section class="section">
+            <div class="section__head">
+              <h2 class="section__title">Guests' pre-orders ({{ guestViews().length }})</h2>
+              @if (guestViews().length > 0) {
+                <button type="button" class="btn" (click)="copyInviteLink()">Copy invite link</button>
+              }
+            </div>
+
+            @for (guest of guestViews(); track guest.id) {
+              <div class="guest" [class.guest--attention]="guest.statusKind === 'attention'">
+                <div class="guest__head">
+                  <div
+                    class="avatar"
+                    [class.avatar--empty]="!guest.hasItems && !guest.isSubmitted"
+                    aria-hidden="true"
+                  >
+                    {{ guest.initial }}
+                  </div>
+                  <span class="guest__name">{{ guest.name }}</span>
+                  <span class="badge badge--{{ guest.statusKind }}">{{ guest.statusLabel }}</span>
+
+                  @if (guest.hasItems) {
+                    <span class="guest__total" [class.guest__total--muted]="!guest.isSubmitted">
+                      {{ guest.total | currency: 'USD' : 'symbol' : '1.0-2' }}
+                    </span>
+                    <button
+                      type="button"
+                      class="btn btn--icon"
+                      [attr.aria-expanded]="guest.isExpanded"
+                      [attr.aria-label]="(guest.isExpanded ? 'Hide ' : 'Show ') + guest.name + '\'s dishes'"
+                      (click)="toggleGuest(guest)"
+                    >
+                      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                        @if (guest.isExpanded) {
+                          <path d="M7 14l5-5 5 5" />
+                        } @else {
+                          <path d="M7 10l5 5 5-5" />
+                        }
+                      </svg>
+                    </button>
+                  } @else {
+                    <button type="button" class="btn" (click)="copyReminder(guest)">
+                      Copy reminder
+                    </button>
+                  }
+
+                  <button
+                    type="button"
+                    class="btn btn--icon"
+                    [attr.aria-label]="'Remove ' + guest.name + ' from the group order'"
+                    (click)="askToRemoveGuest(guest.id)"
+                  >
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                  </button>
+                </div>
+
+                @if (guest.isConfirmingRemoval) {
+                  <div class="guest__confirm" role="alertdialog">
+                    <span>Remove {{ guest.name }} and all their dishes?</span>
+                    <div class="guest__confirm-actions">
+                      <button type="button" class="btn" (click)="cancelRemoveGuest()">Keep</button>
+                      <button type="button" class="btn btn--danger" (click)="confirmRemoveGuest(guest.id)">
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                }
+
+                @if (guest.isExpanded) {
+                  @for (row of guest.rows; track row.dishId) {
+                    <div
+                      class="guest__dish"
+                      [class.guest__dish--unavailable]="row.isUnavailable && !row.isRemoved"
+                      [class.guest__dish--removed]="row.isRemoved"
+                    >
+                      @if (row.imageUrl) {
+                        <img class="photo photo--44" [src]="row.imageUrl" alt="" />
+                      } @else {
+                        <div class="photo photo--44" aria-hidden="true"></div>
+                      }
+
+                      <div class="guest__dish-text">
+                        <span class="guest__dish-name">{{ row.name }}</span>
+                        @if (row.isRemoved) {
+                          <span class="guest__dish-meta">Removed by you</span>
+                        } @else if (row.isUnavailable) {
+                          <span class="badge badge--unavailable">
+                            Unavailable now · remove it to submit
+                          </span>
+                        } @else {
+                          <span class="guest__dish-meta">x{{ row.quantity }}</span>
+                        }
+                      </div>
+
+                      <span class="guest__dish-price">
+                        {{ row.lineTotal | currency: 'USD' : 'symbol' : '1.0-2' }}
+                      </span>
+
+                      @if (row.isRemoved) {
+                        <button type="button" class="btn" (click)="undoRemoval(guest.id, row.dishId)">
+                          Undo
+                        </button>
+                      } @else {
+                        <button
+                          type="button"
+                          class="btn btn--icon"
+                          [class.btn--icon-accent]="row.isUnavailable"
+                          [attr.aria-label]="'Remove ' + row.name"
+                          (click)="removeDish(guest.id, row.dishId)"
+                        >
+                          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" />
+                          </svg>
+                        </button>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            } @empty {
+              <div class="empty">
+                <div class="empty__icon" aria-hidden="true">
+                  <svg class="icon" viewBox="0 0 24 24">
+                    <circle cx="9" cy="8" r="3.5" />
+                    <path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6M18 8v6M15 11h6" />
+                  </svg>
+                </div>
+                <h3 class="empty__title">No guests have joined yet</h3>
+                <p class="empty__text">
+                  Share your invite link so friends can pick their own dishes. Their choices will
+                  appear here.
+                </p>
+                <button type="button" class="btn btn--lg" (click)="copyInviteLink()">
+                  Copy invite link
+                </button>
+              </div>
+            }
+          </section>
+
+          @if (showBill()) {
+            <section class="section bill">
+              <div class="section__head">
+                <h2 class="section__title">Split bill</h2>
+                <button type="button" class="btn" (click)="copyBillSummary()">Copy summary</button>
+              </div>
+              <p class="section__hint">Everyone pays for what they ordered.</p>
+
+              @for (row of billRows(); track row.id) {
+                <div class="bill__row">
+                  <div class="avatar" aria-hidden="true">{{ row.initial }}</div>
+                  <div class="bill__text">
+                    <div class="bill__name">
+                      {{ row.name }}
+                      @if (row.isOwner) {
+                        <span class="bill__you">(you)</span>
+                      }
+                      @if (!row.isSubmitted) {
+                        <span class="badge badge--choosing">Still choosing</span>
+                      }
+                    </div>
+                    <div class="bill__summary">{{ row.summary || 'Nothing ordered yet' }}</div>
+                  </div>
+                  <div class="bill__amount">
+                    <div class="bill__subtotal">
+                      {{ row.subtotal | currency: 'USD' : 'symbol' : '1.0-2' }}
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <div class="bill__total">
+                <span>{{ billTitle() }}</span>
+                <span>{{ bill()?.total ?? 0 | currency: 'USD' : 'symbol' : '1.0-2' }}</span>
+              </div>
+            </section>
+          }
+        </div>
+
+        <footer class="cart__footer">
+          <div class="total">
+            <span class="total__label">
+              Table total · You {{ ownerTotal() | currency: 'USD' : 'symbol' : '1.0-2' }} + Guests
+              {{ submittedGuestsTotal() | currency: 'USD' : 'symbol' : '1.0-2' }}
+            </span>
+            <span class="total__value">{{ tableTotal() | currency: 'USD' : 'symbol' : '1.0-2' }}</span>
+          </div>
+          <button type="button" class="btn btn--primary" [disabled]="!canSubmit()" (click)="submit()">
+            {{ submitLabel() }}
+          </button>
+        </footer>
+      </section>
+    }
+  }
+</main>
+
+@if (submittedSummary(); as summary) {
+  <div
+    class="submitted-backdrop"
+    role="button"
+    tabindex="0"
+    aria-label="Close confirmation"
+    (click)="closeSubmittedModal()"
+    (keydown.enter)="closeSubmittedModal()"
+    (keydown.space)="closeSubmittedModal(); $event.preventDefault()"
+  >
+    <div
+      class="submitted-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="submitted-title"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+    >
+      <div class="submitted-card__icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="24" cy="24" r="21" />
+          <path d="M14 25l7 7 13-15" />
+        </svg>
+      </div>
+      <h2 id="submitted-title" class="submitted-card__title">Pre-order submitted</h2>
+      <p class="submitted-card__text">
+        Your table is set. The waiter will have everything ready when you arrive.
+      </p>
+      <dl class="submitted-card__totals">
+        <div><dt>Your dishes</dt><dd>{{ summary.ownerTotal | currency: 'USD' : 'symbol' : '1.0-2' }}</dd></div>
+        <div>
+          <dt>Guests ({{ summary.guestCount }})</dt>
+          <dd>{{ summary.guestsTotal | currency: 'USD' : 'symbol' : '1.0-2' }}</dd>
+        </div>
+        <div class="submitted-card__total">
+          <dt>Table total</dt>
+          <dd>{{ summary.tableTotal | currency: 'USD' : 'symbol' : '1.0-2' }}</dd>
+        </div>
+      </dl>
+      <p class="submitted-card__hint">
+        You can still change your order up to 30 minutes before your table time.
+      </p>
+      <button type="button" class="btn btn--primary btn--lg submitted-card__ok" (click)="closeSubmittedModal()">
+        Back to my reservations
+      </button>
+    </div>
+  </div>
+}

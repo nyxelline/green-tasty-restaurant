@@ -1,0 +1,80 @@
+<div class="menu-container">
+  <section class="hero-section">
+    <app-main-cover-image
+      [darkened]="true"
+      src="assets/img/main-page-cover.jpg"
+      alt="Delicious Georgian food"
+    />
+
+    <div class="hero-text-block">
+      <p class="hero-subtitle">Green & Tasty Restaurants</p>
+      <h1 class="hero-title">Menu</h1>
+      @if (isPreOrderEnabled) {
+        <p class="hero-notice">
+          Pre-order for <strong>{{ preOrderReservationLabel }}</strong>
+          <a routerLink="/reservations">Done — back to my reservations</a>
+        </p>
+      } @else {
+        <p class="hero-notice hero-notice--hint">
+          Just browsing. To order ahead, press <strong>Pre-order</strong> on your booking in
+          <a routerLink="/reservations">My reservations</a>.
+        </p>
+      }
+    </div>
+  </section>
+
+  <section class="content-sections">
+    <div class="menu-section">
+      <div class="filter-sort-bar">
+        <div class="category-buttons">
+          @for (category of menuCategories; track category) {
+            <button
+              (click)="onCategorySelected(category)"
+              [class.active]="selectedCategory === category"
+            >
+              {{ menuCategoryLabels[category] }}
+            </button>
+          }
+        </div>
+
+        <div class="sort-dropdown">
+          <label for="sortSelect">Sort by:</label>
+          <select id="sortSelect" (change)="onSortChanged($event)">
+            @for (sort of sortOptions; track sort) {
+              <option [value]="sort" [selected]="sort === selectedSort">
+                {{ sortLabels[sort] }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <app-dish-filter [hiddenCount]="hiddenDishesCount" />
+
+      @if (filteredDishes.length > 0 && visibleDishes.length === 0) {
+        <p class="no-match">No dishes match your filters. Try clearing some of them.</p>
+      }
+
+      <div class="dish-cards">
+        @for (dish of visibleDishes; track dish) {
+          <app-dish-card
+            [dish]="dish"
+            [preOrderEnabled]="isPreOrderEnabled"
+            (dishClicked)="openModal(dish)"
+            (preOrderClicked)="addDishToCart(dish)"
+            maxWidth="288px"
+          ></app-dish-card>
+        }
+      </div>
+    </div>
+  </section>
+
+  @if (selectedDish) {
+    <app-dish-modal
+      [dish]="selectedDish"
+      [preOrderEnabled]="isPreOrderEnabled"
+      (preOrderClicked)="addDishToCart(selectedDish); closeModal()"
+      (closed)="closeModal()"
+    ></app-dish-modal>
+  }
+</div>

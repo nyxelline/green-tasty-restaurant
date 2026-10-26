@@ -1,0 +1,40 @@
+<div class="modal-overlay"
+      tabindex="0"
+      role="button"
+      (click)="onClose()"
+      (keydown.enter)="onClose()"
+      (keydown.space)="onClose()"></div>
+<div class="modal-content" role="dialog" aria-modal="true" [attr.aria-label]="dish.name">
+  <button class="close-button" (click)="onClose()" aria-label="Close">×</button>
+
+  <img class="dish-image" [src]="dish.imageUrl" [alt]="dish.name" />
+
+  <div class="dish-head">
+    <h3 class="dish-name">{{ dish.name }}</h3>
+    <div class="price-weight">
+      <span class="price">{{ dish.price }}$</span>
+      <span class="weight">{{ dish.weight }}</span>
+    </div>
+  </div>
+
+  <p class="dish-description">{{ dish.description }}</p>
+
+  <div class="nutrition">
+    <div class="nutrition__item"><span class="nutrition__value">{{ dish.calories }}</span><span class="nutrition__label">kcal</span></div>
+    <div class="nutrition__item"><span class="nutrition__value">{{ dish.proteins }}</span><span class="nutrition__label">protein</span></div>
+    <div class="nutrition__item"><span class="nutrition__value">{{ dish.fats }}</span><span class="nutrition__label">fats</span></div>
+    <div class="nutrition__item"><span class="nutrition__value">{{ dish.carbohydrates }}</span><span class="nutrition__label">carbs</span></div>
+  </div>
+
+  <div class="dish-info">
+    @if (dish.vitamins) {
+      <p><strong>Vitamins and minerals:</strong> {{ dish.vitamins }}</p>
+    }
+    <p><strong>Suitable for:</strong> {{ dietsText }}</p>
+    <p class="dish-info__allergens"><strong>Contains:</strong> {{ allergensText }}</p>
+  </div>
+
+  @if (preOrderEnabled) {
+    <button type="button" class="add-button" (click)="onAdd()">Add to order</button>
+  }
+</div>

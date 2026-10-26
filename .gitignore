@@ -1,0 +1,47 @@
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+*.code-workspace
+
+# OS
+.DS_Store
+._*
+Thumbs.db
+
+# Node
+node_modules/
+
+# Local env
+.env
+.env.local
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+
+# .NET build output
+bin/
+obj/
+
+# Python venv (backend tooling)
+.venv/
+
+# Angular build output / cache
+dist/
+.angular/
+
+# Generated at build time, holds real API URL — never commit
+environment.production.ts
+
+# AWS Lambda packaging
+*.zip
+publish/
+
+# Personal ops notes with real account/infra details — not for the repo
+MOVE-TO-EU-NORTH-1.md

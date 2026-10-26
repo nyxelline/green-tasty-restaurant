@@ -1,0 +1,141 @@
+@use 'app/shared/styles/abstracts/colors' as color;
+@use 'app/shared/styles/card' as card;
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 99;
+}
+
+.modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 31rem;
+  max-width: 90vw;
+  background: color.$neutral-100;
+  box-shadow: 0 0 0.625rem 0.25rem rgba(194, 194, 194, 0.5);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  isolation: isolate;
+  gap: 1rem;
+  z-index: 100;
+  height: auto;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  @media (max-width: 560px) {
+    padding: 1rem;
+    border-radius: 0;
+  }
+}
+
+.dish-image {
+  width: min(14rem, 40vw);
+  height: min(14rem, 40vw);
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
+  @include card.common-image(circle);
+  box-shadow: 0 0 0.625rem 0.25rem rgba(194, 194, 194, 0.5);
+
+  @media (max-width: 560px) {
+    width: 60%;
+    height: 60%;
+  }
+}
+
+.dish-name {
+  font-size: 1.25rem;
+  color: color.$neutral-900;
+  margin: 0;
+  font-weight: 600;
+}
+
+.dish-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+}
+
+.dish-description {
+  width: 100%;
+  margin: 0;
+  color: #555;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+.nutrition {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 0.25rem;
+    background: #fff;
+    border-radius: 0.75rem;
+    box-shadow: 0 0 0.25rem rgba(194, 194, 194, 0.6);
+  }
+  &__value { font-weight: 600; font-size: 0.9375rem; }
+  &__label { font-size: 0.75rem; color: #777; }
+}
+
+.add-button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: #1a7f37;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: #166b2e; }
+}
+
+.dish-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  font-size: 0.875rem;
+  color: color.$neutral-900;
+}
+
+.price-weight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-weight: 500;
+
+  .price { font-size: 1.25rem; color: #1a7f37; font-weight: 600; }
+  .weight { font-size: 0.875rem; color: #777; }
+}
+
+.close-button {
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.dish-info__allergens { color: #b3261e; }

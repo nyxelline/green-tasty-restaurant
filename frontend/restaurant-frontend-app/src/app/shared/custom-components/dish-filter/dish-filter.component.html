@@ -1,0 +1,43 @@
+<section class="dish-filter" aria-label="Dietary needs">
+  <div class="dish-filter__group">
+    <span class="dish-filter__label">Diet</span>
+    @for (diet of diets; track diet) {
+      <button
+        type="button"
+        class="chip"
+        [class.chip--on]="isDietOn(diet)"
+        [attr.aria-pressed]="isDietOn(diet)"
+        (click)="store.toggleDiet(diet)"
+      >
+        {{ dietLabels[diet] }}
+      </button>
+    }
+  </div>
+
+  <div class="dish-filter__group">
+    <span class="dish-filter__label">Without</span>
+    @for (allergen of allergens; track allergen) {
+      <button
+        type="button"
+        class="chip chip--allergen"
+        [class.chip--on]="isAllergenOn(allergen)"
+        [attr.aria-pressed]="isAllergenOn(allergen)"
+        (click)="store.toggleAllergen(allergen)"
+      >
+        {{ allergenLabels[allergen] }}
+      </button>
+    }
+  </div>
+
+  <div class="dish-filter__foot">
+    @if (store.isActive()) {
+      <span class="dish-filter__count" role="status">
+        {{ hiddenCount() }} {{ hiddenCount() === 1 ? 'dish is' : 'dishes are' }} hidden
+      </span>
+      <button type="button" class="dish-filter__clear" (click)="store.clear()">Clear filters</button>
+    }
+    <span class="dish-filter__hint">
+      Allergen information is provided by the restaurant. If you are unsure, ask the staff.
+    </span>
+  </div>
+</section>

@@ -1,0 +1,84 @@
+@use 'app/shared/styles/abstracts/colors' as color;
+
+:host {
+  display: block;
+}
+
+.dish-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.25rem;
+  background: color.$neutral-0;
+  border-radius: 1rem;
+  box-shadow: 0 0 0.625rem rgba(194, 194, 194, 0.5);
+}
+
+.dish-filter__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dish-filter__label {
+  min-width: 5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: color.$neutral-700;
+}
+
+.chip {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid color.$neutral-200;
+  border-radius: 1rem;
+  background: color.$neutral-0;
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.5rem;
+  color: color.$neutral-700;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+
+  &:hover { border-color: color.$green-600; }
+
+  &:focus-visible {
+    outline: 2px solid color.$green-600;
+    outline-offset: 2px;
+  }
+}
+
+.chip--on {
+  border-color: color.$green-600;
+  background: color.$green-100;
+  color: color.$green-800;
+}
+
+.chip--allergen.chip--on {
+  border-color: color.$red-400;
+  background: color.$red-100;
+  color: color.$red-400;
+}
+
+.dish-filter__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  color: color.$neutral-600;
+}
+
+.dish-filter__clear {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: color.$green-600;
+  text-decoration: underline;
+  cursor: pointer;
+}
