@@ -13,13 +13,51 @@ mark service complete.
 - **Group reservations** — the table owner invites guests via a shareable link; each guest gets their own cart and can submit it independently; the owner reviews everyone's picks, removes items if needed, and submits one consolidated order for the whole table.
 - **Waiter dashboard** — manage assigned reservations, confirm/cancel pre-ordered dishes, edit table/time, generate post-visit reports.
 - **Role-based access** — Customer and Waiter roles via AWS Cognito groups, enforced on both routes and business logic.
-- **Security-hardened backend** — went through a structured vulnerability audit (authorization/IDOR checks, race-condition mitigations on shared counters, consistent business-rule enforcement across every pre-order code path) before this was made public.
+- **Security-hardened backend** — went through a structured vulnerability audit before this was made public (see [Security](#security) below).
 
 ## Tech stack
 
 - **Frontend** — Angular 22 (standalone components, signals), SCSS
 - **Backend** — .NET 10 on AWS Lambda, DynamoDB, API Gateway (REST), AWS Cognito
 - **Infrastructure** — Terraform (shared AWS infra: CloudFront, Cognito, S3, EventBridge) + AWS Syndicate (serverless backend deploy)
+
+## Security
+
+Before making this repository public, the backend went through a structured audit (manual review +
+automated scan) and every Critical finding, plus every High/Medium finding that an ordinary user could
+trigger through normal use (not only a deliberate attacker), was fixed. Summary by category:
+
+### Authorization / IDOR
+- Several staff-management and catalog-write endpoints (`POST /waiters`, `DELETE /waiters`,
+  `POST /locations`, `POST /tables`, `POST /dishes`) had no authorizer at all — anyone could grant
+  themselves the Waiter role or tamper with the menu/tables. Now require Cognito auth + a Waiter-role
+  check in the handler.
+- `GET /reservations/{id}` and the group-order invite-token endpoint returned another customer's
+  reservation/order data to any authenticated user who knew or guessed the ID (classic IDOR). Both now
+  verify the caller is the reservation's owner or its assigned waiter.
+
+### Race conditions
+- Joining a group reservation used a read-then-write check against the guest limit, so two guests
+  joining at nearly the same moment could both slip past the limit. Replaced with an atomic conditional
+  `UpdateItem` in DynamoDB instead of a plain application-level check.
+- Table-overlap checks were including cancelled/completed reservations as if they still occupied the
+  table, which could incorrectly block a legitimately free slot.
+
+### Business-logic consistency
+- A handful of status-transition guards (e.g. blocking edits to an already-cancelled reservation, or
+  rejecting a no-op status update) built an error response but never actually returned it — the checks
+  existed in the code but never fired.
+- The pre-order edit cutoff (changes locked 30 minutes before a reservation starts) was enforced
+  inconsistently: the table owner's path checked it, but a guest in a group order, or submitting/cancelling
+  a pre-order directly, did not. All pre-order write paths now share the same cutoff rule.
+
+### Secrets hygiene
+- A local Syndicate CLI config directory (holding a real AWS account ID) was being tracked by git due to
+  a `.gitignore` pattern that didn't match the actual folder name — fixed, and any real account IDs in
+  tracked files were replaced with placeholders before the first push.
+
+These findings were part of normal iteration during a time-boxed workshop, not something discovered
+after the fact in a live/exploited system — every item above was fixed before this repo went public.
 
 ## Repository layout
 
