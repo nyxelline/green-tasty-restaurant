@@ -15,6 +15,17 @@ mark service complete.
 - **Role-based access** — Customer and Waiter roles via AWS Cognito groups, enforced on both routes and business logic.
 - **Security-hardened backend** — went through a structured vulnerability audit before this was made public (see [Security](#security) below).
 
+## Screenshots
+
+| Main page | Book a Table |
+|---|---|
+| ![Main page](docs/screenshots/main-page.png) | ![Book a Table](docs/screenshots/book-a-table.png) |
+
+## Documentation
+
+- [User Stories](docs/user-stories.md) — main features, written as Epic/Role/Description/AC.
+- [Test Cases](docs/qa/test-cases.md) and [Defect Reports](docs/qa/defect-reports.md) — manual QA pass over the features above.
+
 ## Tech stack
 
 - **Frontend** — Angular 22 (standalone components, signals), SCSS
