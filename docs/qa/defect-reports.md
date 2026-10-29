@@ -1,4 +1,4 @@
-# Defect Reports — Green & Tasty
+# Defect Reports – Green & Tasty
 
 Format follows the course template (ID/Summary/Env-Priority-Severity, Pre-conditions, Steps/Actual/Expected).
 All defects below were found during manual testing of the deployed build and have since been fixed;
@@ -6,7 +6,7 @@ All defects below were found during manual testing of the deployed build and hav
 
 ---
 
-**ID: DR-01** — Submitted pre-order dish shows "(Unknown)" status instead of its real state
+**ID: DR-01** – Submitted pre-order dish shows "(Unknown)" status instead of its real state
 **Env:** P_PRD | **Priority:** High | **Severity:** Major | **Status:** Fixed
 
 **Pre-conditions:** Customer has a submitted pre-order with at least one dish.
@@ -18,11 +18,11 @@ All defects below were found during manual testing of the deployed build and hav
 **Actual result:** Badge shows "(Unknown)" for every dish.
 **Expected result:** Badge shows the dish's real state (Pending / Confirmed / Rejected).
 
-**Root cause:** The backend response model (`OrderItemResponse`) had no `state` field at all — the frontend always received `undefined`.
+**Root cause:** The backend response model (`OrderItemResponse`) had no `state` field at all – the frontend always received `undefined`.
 
 ---
 
-**ID: DR-02** — "Added to X's table" message shows the guest's own name instead of the owner's
+**ID: DR-02** – "Added to X's table" message shows the guest's own name instead of the owner's
 **Env:** P_PRD | **Priority:** Medium | **Severity:** Minor | **Status:** Fixed
 
 **Pre-conditions:** Guest has joined a group session and submitted dishes.
@@ -32,11 +32,11 @@ All defects below were found during manual testing of the deployed build and hav
 2. Read the confirmation message.
 
 **Actual result:** "Your selections have been added to Alex's table" (guest's own name).
-**Expected result:** "...added to [owner's name]'s table" — it's the owner's table, not the guest's.
+**Expected result:** "...added to [owner's name]'s table" – it's the owner's table, not the guest's.
 
 ---
 
-**ID: DR-03** — Owner cannot pre-order immediately after creating a reservation
+**ID: DR-03** – Owner cannot pre-order immediately after creating a reservation
 **Env:** P_PRD | **Priority:** High | **Severity:** Major | **Status:** Fixed
 
 **Pre-conditions:** Customer has just booked a table in the current session.
@@ -45,14 +45,14 @@ All defects below were found during manual testing of the deployed build and hav
 1. From the booking-confirmation modal, click "Make Pre-Order".
 2. Observe the Menu page.
 
-**Actual result:** Menu page opens with no reservation context — pre-order cannot be started. Closing and reopening via "My Reservations" works fine.
+**Actual result:** Menu page opens with no reservation context – pre-order cannot be started. Closing and reopening via "My Reservations" works fine.
 **Expected result:** Pre-order starts immediately, same as via "My Reservations".
 
 **Root cause:** The confirmation modal navigated to `/menu` without the `reservationId`/`reservationLabel` query params the Menu page needs.
 
 ---
 
-**ID: DR-04** — Two guests can join a group reservation with the exact same name, including the owner's name
+**ID: DR-04** – Two guests can join a group reservation with the exact same name, including the owner's name
 **Env:** P_PRD | **Priority:** Medium | **Severity:** Major | **Status:** Fixed
 
 **Pre-conditions:** Group reservation is `Open`.
@@ -65,7 +65,7 @@ All defects below were found during manual testing of the deployed build and hav
 
 ---
 
-**ID: DR-05** — New guest cannot join after the owner raises guest count on an already-submitted group
+**ID: DR-05** – New guest cannot join after the owner raises guest count on an already-submitted group
 **Env:** P_PRD | **Priority:** High | **Severity:** Major | **Status:** Fixed
 
 **Pre-conditions:** Group reservation status is `Submitted`.
@@ -74,12 +74,12 @@ All defects below were found during manual testing of the deployed build and hav
 1. Owner increases the reservation's guest count.
 2. Owner tries to fetch the invite link / a new guest tries to join.
 
-**Actual result:** Invite link fetch and join both fail — group reservation stays locked as `Submitted`.
+**Actual result:** Invite link fetch and join both fail – group reservation stays locked as `Submitted`.
 **Expected result:** Increasing guest count reopens the group (`Open`) so new guests can join.
 
 ---
 
-**ID: DR-06** — Booking time-slot grid shows the whole day regardless of the selected time
+**ID: DR-06** – Booking time-slot grid shows the whole day regardless of the selected time
 **Env:** P_PRD | **Priority:** Low | **Severity:** Minor | **Status:** Fixed
 
 **Pre-conditions:** Customer is booking a table and has selected a specific time.
@@ -93,21 +93,7 @@ All defects below were found during manual testing of the deployed build and hav
 
 ---
 
-**ID: DR-07** — Guest pre-order menu page duplicates the "Menu" heading
-**Env:** P_PRD | **Priority:** Low | **Severity:** Minor | **Status:** Fixed
-
-**Pre-conditions:** Guest has joined a group session.
-
-**Steps:**
-1. Open the guest menu page.
-2. Look at the top of the page.
-
-**Actual result:** "Main page › Menu" breadcrumb directly above a "Menu" hero title — the word "Menu" appears twice, and this element doesn't exist on the owner's equivalent page (visual inconsistency between the two roles).
-**Expected result:** Single "Menu" heading, consistent with the owner's menu page.
-
----
-
-**ID: DR-08** — Cancelled pre-order dishes silently disappear from the guest's own view
+**ID: DR-07** – Cancelled pre-order dishes silently disappear from the guest's own view
 **Env:** P_PRD | **Priority:** Medium | **Severity:** Major | **Status:** Fixed
 
 **Pre-conditions:** Owner has removed/rejected a dish from a guest's submitted cart.
@@ -115,12 +101,12 @@ All defects below were found during manual testing of the deployed build and hav
 **Steps:**
 1. As the guest, reload the pre-order/cart view.
 
-**Actual result:** The rejected dish is filtered out entirely — the guest has no way to see what was removed.
+**Actual result:** The rejected dish is filtered out entirely – the guest has no way to see what was removed.
 **Expected result:** The dish stays visible, flagged as "Rejected", so the guest knows what changed and why their total is lower.
 
 ---
 
-**ID: DR-09** — Waiter could update the status of reservations not assigned to them
+**ID: DR-08** – Waiter could update the status of reservations not assigned to them
 **Env:** P_PRD | **Priority:** High | **Severity:** Critical | **Status:** Fixed
 
 **Pre-conditions:** Two waiters exist; a reservation is assigned to waiter A only.
@@ -128,5 +114,5 @@ All defects below were found during manual testing of the deployed build and hav
 **Steps:**
 1. As waiter B, call the update-status endpoint for that reservation.
 
-**Actual result:** Request succeeds — any waiter could change the status of any table, not just their own.
+**Actual result:** Request succeeds – any waiter could change the status of any table, not just their own.
 **Expected result:** Only the assigned waiter can update the reservation's status; others get 403.

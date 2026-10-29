@@ -1,11 +1,11 @@
-# User Stories — Green & Tasty
+# User Stories – Green & Tasty
 
 Format follows the course template (Epic / US name / Role / Description / Pre-conditions / Acceptance Criteria),
 applied to this project's actual implemented features.
 
 ---
 
-## US01 — Book a Table
+## US01 – Book a Table
 
 | | |
 |---|---|
@@ -27,7 +27,7 @@ applied to this project's actual implemented features.
 
 ---
 
-## US02 — Invite Guests to a Group Pre-Order
+## US02 – Invite Guests to a Group Pre-Order
 
 | | |
 |---|---|
@@ -41,14 +41,14 @@ applied to this project's actual implemented features.
 - Caller is the reservation's owner (or its assigned waiter).
 
 **Acceptance Criteria (AC):**
-1. Only the reservation's owner or assigned waiter can retrieve the invite link/token — no other authenticated user can.
+1. Only the reservation's owner or assigned waiter can retrieve the invite link/token – no other authenticated user can.
 2. The link only works while the group's status is `Open` and the reservation itself is still `Reserved`.
 3. If the owner raises the guest count after the group was already finalized (`Submitted`) or closed, the group reopens for new joins rather than staying locked.
 4. The number of guests who can join is capped at `GuestCount − 1` (the remaining seat is the owner's); joining past the cap is rejected with a clear message.
 
 ---
 
-## US03 — Guest Joins and Builds a Pre-Order
+## US03 – Guest Joins and Builds a Pre-Order
 
 | | |
 |---|---|
@@ -63,7 +63,7 @@ applied to this project's actual implemented features.
 
 **Acceptance Criteria (AC):**
 1. Guest must enter a name before the menu becomes browsable.
-2. If the entered name collides with another guest already in the group — or with the owner's own display name — it is automatically disambiguated with a suffix (e.g. `Alex (2)`), instead of silently merging the two.
+2. If the entered name collides with another guest already in the group – or with the owner's own display name – it is automatically disambiguated with a suffix (e.g. `Alex (2)`), instead of silently merging the two.
 3. The full menu is shown grouped by category, with name, price, weight and current availability per dish.
 4. A dish marked unavailable ("Out of Stock") cannot be added to the cart.
 5. The guest can submit their own cart independently of other guests; once submitted, edits are locked until the owner changes something in that guest's cart.
@@ -71,7 +71,7 @@ applied to this project's actual implemented features.
 
 ---
 
-## US04 — Owner Reviews the Group Order and Bill
+## US04 – Owner Reviews the Group Order and Bill
 
 | | |
 |---|---|
@@ -93,7 +93,7 @@ applied to this project's actual implemented features.
 
 ---
 
-## US05 — Waiter Manages Assigned Reservations
+## US05 – Waiter Manages Assigned Reservations
 
 | | |
 |---|---|
@@ -107,6 +107,6 @@ applied to this project's actual implemented features.
 
 **Acceptance Criteria (AC):**
 1. Waiter's dashboard lists only reservations assigned to them.
-2. Waiter can change a reservation's status only when it is assigned to them — attempting to update a reservation assigned to a different waiter is rejected (403).
+2. Waiter can change a reservation's status only when it is assigned to them – attempting to update a reservation assigned to a different waiter is rejected (403).
 3. Waiter can view and confirm/cancel individual dishes in an order tied to a reservation assigned to them, or belonging to the customer who placed it; not any reservation in the system.
 4. Report generation/download and business reports are available to Waiters only, not to Customers.

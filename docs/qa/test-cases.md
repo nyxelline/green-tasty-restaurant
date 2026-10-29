@@ -1,11 +1,11 @@
-# Test Cases — Green & Tasty
+# Test Cases – Green & Tasty
 
 Format follows the course template (ID/Title/Status, Pre-conditions, Steps, Expected Result),
 covering the user stories in `user-stories.md`.
 
 ---
 
-**ID: TC-01** — Verify a guest with a duplicate name is disambiguated, including against the owner's own name
+**ID: TC-01** – Verify a guest with a duplicate name is disambiguated, including against the owner's own name
 **Status:** Passed
 **Covers:** US03
 
@@ -19,11 +19,11 @@ Group reservation is `Open`; owner's display name is known (e.g. "Ria Fane").
 **Expected result:**
 1. Guest A is registered as "Ria Fane (2)" (or similar), not literally "Ria Fane", since that name is already taken by the owner's display name.
 2. Guest B is registered as "Ria Fane (3)".
-3. The group's participant list and bill show three distinct entries — no two participants are visually indistinguishable.
+3. The group's participant list and bill show three distinct entries – no two participants are visually indistinguishable.
 
 ---
 
-**ID: TC-02** — Verify a new guest can join after the owner raises the guest count on an already-submitted group
+**ID: TC-02** – Verify a new guest can join after the owner raises the guest count on an already-submitted group
 **Status:** Passed
 **Covers:** US02
 
@@ -42,7 +42,7 @@ Group reservation status is `Submitted` (pre-order already finalized); reservati
 
 ---
 
-**ID: TC-03** — Verify the owner can pre-order immediately after creating a reservation (no navigation detour required)
+**ID: TC-03** – Verify the owner can pre-order immediately after creating a reservation (no navigation detour required)
 **Status:** Passed
 **Covers:** US01, US04
 
@@ -57,7 +57,7 @@ Customer is taken straight to the Menu page pre-scoped to the new reservation (r
 
 ---
 
-**ID: TC-04** — Verify a cancelled dish is shown as rejected rather than silently disappearing
+**ID: TC-04** – Verify a cancelled dish is shown as rejected rather than silently disappearing
 **Status:** Passed
 **Covers:** US04
 
@@ -69,11 +69,11 @@ Guest has a submitted pre-order; owner has removed one dish from that guest's ca
 
 **Expected result:**
 1. The removed dish is still listed, shown with a "Rejected" badge, not dropped from the view.
-2. Every dish in the response carries an actual state (Pending / Confirmed / Rejected) — none show as "(Unknown)".
+2. Every dish in the response carries an actual state (Pending / Confirmed / Rejected) – none show as "(Unknown)".
 
 ---
 
-**ID: TC-05** — Verify the booking time-slot grid only shows a window around the selected time
+**ID: TC-05** – Verify the booking time-slot grid only shows a window around the selected time
 **Status:** Passed
 **Covers:** US01
 
@@ -88,7 +88,7 @@ Grid shows only a window around the selected time (±2h), not every slot for the
 
 ---
 
-**ID: TC-06** — Verify a waiter cannot update the status of a reservation assigned to a different waiter
+**ID: TC-06** – Verify a waiter cannot update the status of a reservation assigned to a different waiter
 **Status:** Passed
 **Covers:** US05
 
@@ -100,18 +100,3 @@ Two waiters, A and B, are both authenticated; reservation R is assigned to waite
 
 **Expected result:**
 Request is rejected with 403 ("You can only update the status of reservations assigned to you.").
-
----
-
-**ID: TC-07** — Verify the guest menu page does not duplicate the "Menu" heading
-**Status:** Passed
-**Covers:** US03
-
-**Pre-conditions:**
-Guest has joined a group session and is viewing the menu.
-
-**Steps:**
-1. Load the guest pre-order menu page.
-
-**Expected result:**
-The page shows the "Menu" hero title once; no separate "Main page › Menu" breadcrumb duplicating it above the hero, consistent with the owner's equivalent menu page.
