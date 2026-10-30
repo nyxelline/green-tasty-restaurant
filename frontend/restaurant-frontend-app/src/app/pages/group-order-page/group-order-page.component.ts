@@ -15,7 +15,6 @@ import { map, of, switchMap } from 'rxjs';
 import { GroupBill } from '@app/models/group-order/group-bill.model';
 import { GroupOrderItem, GroupParticipant, GroupSessions } from '@app/models/group-order/group-sessions.model';
 import { GroupSessionsService } from '@app/services/guest-sessions/group-sessions.service';
-import { PreOrdersService } from '@app/services/pre-orders/pre-orders.service';
 import { GuestInviteService } from '@app/services/reservation/guest-invite.service';
 import { ToastService } from '@app/services/toast/toast.service';
 import { HeaderComponent } from '@app/shared/custom-components/header/header.component';
@@ -53,7 +52,6 @@ export class GroupOrderPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly groupSessionsService = inject(GroupSessionsService);
   private readonly guestInviteService = inject(GuestInviteService);
-  private readonly preOrdersService = inject(PreOrdersService);
   private readonly toastService = inject(ToastService);
 
   private readonly removalTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -338,9 +336,14 @@ export class GroupOrderPageComponent implements OnInit {
       return;
     }
 
+    const groupId = this.groupReservationId();
+    if (!groupId) {
+      return;
+    }
+
     this.isSubmitting.set(true);
-    this.preOrdersService
-      .submitPreOrderByReservationId(this.reservationId())
+    this.groupSessionsService
+      .submitGroupPreOrder$(groupId, this.reservationId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -352,7 +355,10 @@ export class GroupOrderPageComponent implements OnInit {
             guestCount: this.guestViews().filter((guest) => guest.isSubmitted).length,
           });
         },
-        error: () => this.isSubmitting.set(false),
+        error: () => {
+          this.isSubmitting.set(false);
+          this.toastService.error('Could not submit the group pre-order. Please try again.');
+        },
       });
   }
 

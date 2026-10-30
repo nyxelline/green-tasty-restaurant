@@ -12,6 +12,7 @@ import {
   ReservationStatus,
 } from '@app/models/reservations/reservation.model';
 import { CustomButtonComponent } from '@app/shared/custom-components/custom-button/custom-button.component';
+import { ModalComponent } from '@app/shared/custom-components/modal/modal.component';
 
 @Component({
   selector: 'app-reservation-confirmed',
@@ -19,6 +20,7 @@ import { CustomButtonComponent } from '@app/shared/custom-components/custom-butt
   imports: [
     DatePipe,
     CustomButtonComponent,
+    ModalComponent,
   ],
   templateUrl: './reservation-confirmed.component.html',
   styleUrl: './reservation-confirmed.component.scss',
@@ -36,6 +38,7 @@ export class ReservationConfirmedComponent {
   readonly cancelReservation = output<void>();
 
   readonly isFading = signal(false);
+  readonly showCancelConfirm = signal(false);
 
   protected readonly ReservationStatus = ReservationStatus;
 
@@ -52,7 +55,16 @@ export class ReservationConfirmedComponent {
     this.editReservation.emit();
   }
 
-  onCancel(): void {
+  requestCancel(): void {
+    this.showCancelConfirm.set(true);
+  }
+
+  dismissCancel(): void {
+    this.showCancelConfirm.set(false);
+  }
+
+  confirmCancel(): void {
+    this.showCancelConfirm.set(false);
     this.cancelReservation.emit();
   }
 

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="068b0d39-505a-46a2-a4e1-54d76f6a1c42" name="d4rlene@DESKTOP-N6NS0LB 2026-10-30 21:26:49" runUser="DESKTOP-N6NS0LB\d4rlene" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-30T21:26:49.0337032+02:00" queuing="2026-10-30T21:26:49.0337041+02:00" start="2026-10-30T21:26:30.4567392+02:00" finish="2026-10-30T21:28:15.3562784+02:00" />
+  <TestSettings name="default" id="d1130b98-9970-48da-b1b9-1943f7364ebc">
+    <Deployment runDeploymentRoot="d4rlene_DESKTOP-N6NS0LB_2026-10-30_21_26_49" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="2b757609-5992-4b6f-bbb6-f880552ce852" testId="b0010ffd-05ab-ea45-dabe-d61ece6fe8b0" testName="EmptyGroup_ListsOnlyOwnerWithZeroTotal" computerName="DESKTOP-N6NS0LB" duration="00:00:16.2784640" startTime="2026-10-30T21:26:32.6511317+02:00" endTime="2026-10-30T21:26:48.9294857+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2b757609-5992-4b6f-bbb6-f880552ce852" />
+    <UnitTestResult executionId="84960fa4-dd5a-4e3f-bbc9-19afeb9961b9" testId="c0854fd5-ad59-e8ae-11b3-af5d1f902a8f" testName="GuestsWhoJoined_AppearWithTheirOwnDishesAndTotals" computerName="DESKTOP-N6NS0LB" duration="00:00:10.6307800" startTime="2026-10-30T21:26:48.9321589+02:00" endTime="2026-10-30T21:26:59.5629390+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="84960fa4-dd5a-4e3f-bbc9-19afeb9961b9" />
+    <UnitTestResult executionId="a152030f-4e7f-45d5-94d1-de110721aa0b" testId="d3d60dfb-8151-fa3d-c87f-bb1fa392a84d" testName="NonexistentGroupReservationId_ReturnsNotFound" computerName="DESKTOP-N6NS0LB" duration="00:00:04.7124160" startTime="2026-10-30T21:27:08.6435808+02:00" endTime="2026-10-30T21:27:13.3559958+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a152030f-4e7f-45d5-94d1-de110721aa0b" />
+    <UnitTestResult executionId="44b94ada-f1c6-40f9-acaa-35fd990eb6a2" testId="07240d76-9d5a-8975-40d0-f740c307284f" testName="GuestWithNoDishes_IsStillListedWithZeroTotal" computerName="DESKTOP-N6NS0LB" duration="00:00:05.3934430" startTime="2026-10-30T21:26:59.5630786+02:00" endTime="2026-10-30T21:27:04.9565201+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="44b94ada-f1c6-40f9-acaa-35fd990eb6a2" />
+    <UnitTestResult executionId="99dc6f44-5935-4e33-8bc2-94ff120e39f5" testId="953ea6e5-aef3-bb95-0dc0-87df86023a1e" testName="NoGuestsYet_ShowsEmptyState" computerName="DESKTOP-N6NS0LB" duration="00:00:25.6091220" startTime="2026-10-30T21:27:49.4447504+02:00" endTime="2026-10-30T21:28:15.0538704+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="99dc6f44-5935-4e33-8bc2-94ff120e39f5" />
+    <UnitTestResult executionId="1bd7b083-fafe-4207-8f3c-37ff778a35a4" testId="7478c365-4e02-1625-fb17-4377128e7d6a" testName="GuestWithNoDishesYet_IsStillListedAsAwaitingOrder" computerName="DESKTOP-N6NS0LB" duration="00:00:10.4969590" startTime="2026-10-30T21:27:38.9476513+02:00" endTime="2026-10-30T21:27:49.4446108+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1bd7b083-fafe-4207-8f3c-37ff778a35a4" />
+    <UnitTestResult executionId="2c56f354-f9ea-4f45-8021-250cf5ec058d" testId="2fcf8af1-464b-9107-3d33-5921a9248c6b" testName="TokenOfUnrelatedUser_ReturnsForbidden" computerName="DESKTOP-N6NS0LB" duration="00:00:05.3771170" startTime="2026-10-30T21:27:13.3561352+02:00" endTime="2026-10-30T21:27:18.7332504+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2c56f354-f9ea-4f45-8021-250cf5ec058d" />
+    <UnitTestResult executionId="989711a1-39b4-4fe0-8fd1-810551962d05" testId="92bebc54-c125-d47c-6c2a-073923034faa" testName="NoBearerToken_ReturnsUnauthorized" computerName="DESKTOP-N6NS0LB" duration="00:00:03.6831560" startTime="2026-10-30T21:27:04.9600105+02:00" endTime="2026-10-30T21:27:08.6431667+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="989711a1-39b4-4fe0-8fd1-810551962d05" />
+    <UnitTestResult executionId="3f1e1e9f-97b0-44bd-8850-d8b0b3f89d53" testId="60cccaf7-524e-d963-0e5a-20bdb94c3e30" testName="GuestsWhoJoined_AppearWithStatusAndTotals" computerName="DESKTOP-N6NS0LB" duration="00:00:20.1661060" startTime="2026-10-30T21:27:18.7793831+02:00" endTime="2026-10-30T21:27:38.9454894+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3f1e1e9f-97b0-44bd-8850-d8b0b3f89d53" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="NoBearerToken_ReturnsUnauthorized" storage="d:\work\epam\marathon2026\aqa\restaurantaqa.tests\bin\debug\net10.0\restaurantaqa.tests.dll" id="92bebc54-c125-d47c-6c2a-073923034faa">
+      <Execution id="989711a1-39b4-4fe0-8fd1-810551962d05" />
+      <TestMethod codeBase="D:\work\epam\marathon2026\aqa\RestaurantAqa.Tests\bin\Debug\net10.0\RestaurantAqa.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="RestaurantAqa.Tests.Tests.Api.GroupSessionsApiTests" name="NoBearerToken_ReturnsUnauthorized" />
+    </UnitTest>
+    <UnitTest name="GuestWithNoDishes_IsStillListedWithZeroTotal" storage="d:\work\epam\marathon2026\aqa\restaurantaqa.tests\bin\debug\net10.0\restaurantaqa.tests.dll" id="07240d76-9d5a-8975-40d0-f740c307284f">
+      <Execution id="44b94ada-f1c6-40f9-acaa-35fd990eb6a2" />
+      <TestMethod codeBase="D:\work\epam\marathon2026\aqa\RestaurantAqa.Tests\bin\Debug\net10.0\RestaurantAqa.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="RestaurantAqa.Tests.Tests.Api.GroupSessionsApiTests" name="GuestWithNoDishes_IsStillListedWithZeroTotal" />
+    </UnitTest>
+    <UnitTest name="TokenOfUnrelatedUser_ReturnsForbidden" storage="d:\work\epam\marathon2026\aqa\restaurantaqa.tests\bin\debug\net10.0\restaurantaqa.tests.dll" id="2fcf8af1-464b-9107-3d33-5921a9248c6b">
+      <Execution id="2c56f354-f9ea-4f45-8021-250cf5ec058d" />
+      <TestMethod codeBase="D:\work\epam\marathon2026\aqa\RestaurantAqa.Tests\bin\Debug\net10.0\RestaurantAqa.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="RestaurantAqa.Tests.Tests.Api.GroupSessionsApiTests" name="TokenOfUnrelatedUser_ReturnsForbidden" />
+    </UnitTest>
+    <UnitTest name="GuestWithNoDishesYet_IsStillListedAsAwaitingOrder" storage="d:\work\epam\marathon2026\aqa\restaurantaqa.tests\bin\debug\net10.0\restaurantaqa.tests.dll" id="7478c365-4e02-1625-fb17-4377128e7d6a">
+      <Execution id="1bd7b083-fafe-4207-8f3c-37ff778a35a4" />
+      <TestMethod codeBase="D:\work\epam\marathon2026\aqa\RestaurantAqa.Tests\bin\Debug\net10.0\RestaurantAqa.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="RestaurantAqa.Tests.Tests.Ui.GroupOrderPageUiTests" name="GuestWithNoDishesYet_IsStillListedAsAwaitingOrder" />
+    </UnitTest>
+    <UnitTest name="EmptyGroup_ListsOnlyOwnerWithZeroTotal" storage="d:\work\epam\marathon2026\aqa\restaurantaqa.tests\bin\debug\net10.0\restaurantaqa.tests.dll" id="b0010ffd-05ab-ea45-dabe-d61ece6fe8b0">
+      <Execution id="2b757609-5992-4b6f-bbb6-f880552ce852" />
+      <TestMethod codeBase="D:\work\epam\marathon2026\aqa\RestaurantAqa.Tests\bin\Debug\net10.0\RestaurantAqa.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="RestaurantAqa.Tests.Tests.Api.GroupSessionsApiTests" name="EmptyGroup_ListsOnlyOwnerWithZeroTotal" />
+    </UnitTest>
+    <UnitTest name="GuestsWhoJoined_AppearWithTheirOwnDishesAndTotals" storage="d:\work\epam\marathon2026\aqa\restaurantaqa.tests\bin\debug\net10.0\restaurantaqa.tests.dll" id="c0854fd5-ad59-e8ae-11b3-af5d1f902a8f">
+      <Execution id="84960fa4-dd5a-4e3f-bbc9-19afeb9961b9" />
+      <TestMethod codeBase="D:\work\epam\marathon2026\aqa\RestaurantAqa.Tests\bin\Debug\net10.0\RestaurantAqa.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="RestaurantAqa.Tests.Tests.Api.GroupSessionsApiTests" name="GuestsWhoJoined_AppearWithTheirOwnDishesAndTotals" />
+    </UnitTest>
+    <UnitTest name="NoGuestsYet_ShowsEmptyState" storage="d:\work\epam\marathon2026\aqa\restaurantaqa.tests\bin\debug\net10.0\restaurantaqa.tests.dll" id="953ea6e5-aef3-bb95-0dc0-87df86023a1e">
+      <Execution id="99dc6f44-5935-4e33-8bc2-94ff120e39f5" />
+      <TestMethod codeBase="D:\work\epam\marathon2026\aqa\RestaurantAqa.Tests\bin\Debug\net10.0\RestaurantAqa.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="RestaurantAqa.Tests.Tests.Ui.GroupOrderPageUiTests" name="NoGuestsYet_ShowsEmptyState" />
+    </UnitTest>
+    <UnitTest name="NonexistentGroupReservationId_ReturnsNotFound" storage="d:\work\epam\marathon2026\aqa\restaurantaqa.tests\bin\debug\net10.0\restaurantaqa.tests.dll" id="d3d60dfb-8151-fa3d-c87f-bb1fa392a84d">
+      <Execution id="a152030f-4e7f-45d5-94d1-de110721aa0b" />
+      <TestMethod codeBase="D:\work\epam\marathon2026\aqa\RestaurantAqa.Tests\bin\Debug\net10.0\RestaurantAqa.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="RestaurantAqa.Tests.Tests.Api.GroupSessionsApiTests" name="NonexistentGroupReservationId_ReturnsNotFound" />
+    </UnitTest>
+    <UnitTest name="GuestsWhoJoined_AppearWithStatusAndTotals" storage="d:\work\epam\marathon2026\aqa\restaurantaqa.tests\bin\debug\net10.0\restaurantaqa.tests.dll" id="60cccaf7-524e-d963-0e5a-20bdb94c3e30">
+      <Execution id="3f1e1e9f-97b0-44bd-8850-d8b0b3f89d53" />
+      <TestMethod codeBase="D:\work\epam\marathon2026\aqa\RestaurantAqa.Tests\bin\Debug\net10.0\RestaurantAqa.Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="RestaurantAqa.Tests.Tests.Ui.GroupOrderPageUiTests" name="GuestsWhoJoined_AppearWithStatusAndTotals" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="b0010ffd-05ab-ea45-dabe-d61ece6fe8b0" executionId="2b757609-5992-4b6f-bbb6-f880552ce852" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c0854fd5-ad59-e8ae-11b3-af5d1f902a8f" executionId="84960fa4-dd5a-4e3f-bbc9-19afeb9961b9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d3d60dfb-8151-fa3d-c87f-bb1fa392a84d" executionId="a152030f-4e7f-45d5-94d1-de110721aa0b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="07240d76-9d5a-8975-40d0-f740c307284f" executionId="44b94ada-f1c6-40f9-acaa-35fd990eb6a2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="953ea6e5-aef3-bb95-0dc0-87df86023a1e" executionId="99dc6f44-5935-4e33-8bc2-94ff120e39f5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7478c365-4e02-1625-fb17-4377128e7d6a" executionId="1bd7b083-fafe-4207-8f3c-37ff778a35a4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2fcf8af1-464b-9107-3d33-5921a9248c6b" executionId="2c56f354-f9ea-4f45-8021-250cf5ec058d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="92bebc54-c125-d47c-6c2a-073923034faa" executionId="989711a1-39b4-4fe0-8fd1-810551962d05" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="60cccaf7-524e-d963-0e5a-20bdb94c3e30" executionId="3f1e1e9f-97b0-44bd-8850-d8b0b3f89d53" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="9" executed="9" passed="9" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.6.0.0: Test execution started&#xD;
+Running all tests in D:\work\epam\marathon2026\aqa\RestaurantAqa.Tests\bin\Debug\net10.0\RestaurantAqa.Tests.dll&#xD;
+   NUnit3TestExecutor discovered 9 of 9 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.6.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

@@ -28,8 +28,8 @@
 
     <div modal-actions class="actions">
         <app-custom-button type="button" variant="primary" size="extra-large" fullWidth
-            [disabled]="!valid() || !invite()" (click)="submit()">
-            Browse Menu
+            [disabled]="!valid() || !invite() || loading()" (click)="submit()">
+            {{ loading() ? 'Joining...' : 'Browse Menu' }}
         </app-custom-button>
     </div>
 </app-modal>

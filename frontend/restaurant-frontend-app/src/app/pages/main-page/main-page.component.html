@@ -24,19 +24,14 @@
 
     <div class="dish-cards">
       @for (dish of dishes; track dish) {
-        <div class="dish-card">
-          <img [src]="dish.imageUrl" alt="{{ dish.name }}" class="dish-image" />
-          <div class="dish-info">
-            <div class="dish-name">{{ dish.name }}</div>
-            <div class="dish-meta">
-              <span class="dish-price">{{ dish.price | currency: '$' }}</span>
-              <span class="dish-weight">{{ dish.weight }}</span>
-            </div>
-          </div>
-        </div>
+        <app-dish-card [dish]="dish" maxWidth="260px" (dishClicked)="openDishModal(dish)"></app-dish-card>
       }
     </div>
   </div>
+
+  @if (selectedDish) {
+    <app-dish-modal [dish]="selectedDish" (closed)="closeDishModal()"></app-dish-modal>
+  }
 
   <!-- Locations -->
   <div class="locations-section">

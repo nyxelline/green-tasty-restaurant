@@ -78,9 +78,18 @@ public class GetAllDishesHandler : IApiRequestHandler
             dishes = dishes.Where(d => d.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
+        // The catalog spans every location, so the same dish can legitimately have one row per
+        // branch. This listing has no location context to scope by (same as the popular-dishes
+        // listing), so dedupe by name rather than showing what looks like unexplained duplicates.
+        dishes = dishes
+            .GroupBy(d => d.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First())
+            .ToList();
+
         dishes = SortDishes(dishes, sortBy, popularityMap);
 
-        var response = dishes.ConvertAll(DishMapper.ToDishListResponse);
+        var response = dishes.Select(dish => DishMapper.ToDishListResponse(dish)).ToList();
+
         return ResponseBuilder.CreateSuccessResponse(response);
     }
 

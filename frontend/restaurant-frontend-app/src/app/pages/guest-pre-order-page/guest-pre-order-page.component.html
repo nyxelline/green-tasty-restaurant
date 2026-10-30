@@ -2,7 +2,12 @@
 <app-guest-preorder-submitted [items]="store.cartItems()" [total]="store.total()" [guestName]="store.guestName()"
     [invite]="store.invite()" (createNew)="store.createNewPreorder()" />
 } @else {
-@if (store.inviteError() === 'retryable') {
+@if (store.inviteError() === 'full') {
+<section class="invite-retry" role="alert">
+    <h1>This group is already full</h1>
+    <p>All the spots for this reservation's group pre-order have been taken. Ask the reservation owner if there's room left.</p>
+</section>
+} @else if (store.inviteError() === 'retryable') {
 <section class="invite-retry" role="alert">
     <h1>We couldn’t load the invitation</h1>
     <p>This may be a temporary connection or server issue. Please try again.</p>
@@ -91,11 +96,11 @@
 
 <!-- mandatory modal: show until name is set -->
 @if (!store.guestName()) {
-<app-guest-name-modal [invite]="store.inviteVm()" (confirmed)="store.join($event)" (closed)="leaveInvite()" />
+<app-guest-name-modal [invite]="store.inviteVm()" [loading]="store.joinLoading()" (confirmed)="store.join($event)" (closed)="leaveInvite()" />
 }
 
 <!-- cart drawer -->
-<app-guest-cart-drawer [open]="isCartOpen()" [items]="store.cartItems()" [total]="store.total()"
+<app-guest-cart-drawer [open]="isCartOpen()" [items]="store.cartItems()" [removedItems]="store.removedByOwner()" [total]="store.total()"
     [busy]="store.cartBusy()" [error]="store.cartError()" (closed)="closeCart()"
     (goToMenu)="closeCart()" (inc)="store.inc($event)" (dec)="store.dec($event)" (remove)="store.remove($event)"
     (submitted)="store.submitPreorder()" />

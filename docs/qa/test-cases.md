@@ -118,4 +118,4 @@ Waiter is authenticated; among their assigned reservations, at least one record 
 The waiter sees every reservation that converts successfully; the one broken record is skipped (and logged), not surfaced as a blanket failure.
 
 **Actual result:**
-The broken reservation is now skipped (logged) and the waiter sees every other reservation normally. See DR-09.
+The broken reservation is now skipped (logged) and the waiter sees every other reservation normally. See DR-08.

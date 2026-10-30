@@ -7,4 +7,5 @@ public record GetGuestSessionResponse(
     string Name,
     IEnumerable<OrderItemResponse> Items,
     decimal Total,
-    bool IsSubmitted);
+    bool IsSubmitted,
+    IEnumerable<OrderItemResponse> RemovedByOwner);

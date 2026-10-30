@@ -3,7 +3,11 @@
 .booking {
   display: flex;
   flex-direction: column;
-  min-height: max(832px, calc(100dvh - 68px));
+  // No fixed px floor at all now: a fixed floor (832px, then 640px) still forces the section
+  // taller than the viewport on any window shorter than that floor + the 68px header, which is
+  // exactly what kept producing a small scrollbar. Matching the viewport height exactly removes
+  // that forced overflow; the form content itself is compact enough to fit normal window sizes.
+  min-height: calc(100dvh - 68px);
   background: color.$bg-green;
 
   @media (min-width: 1024px) {
@@ -19,10 +23,14 @@
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
-  gap: 24px;
+  // Trimmed from 24px/48px: the form's own natural content height (padding + card + note) was
+  // taller than many normal browser windows, which forced the row taller than the viewport and
+  // produced a scrollbar no matter how the section's min-height was set. Tightening the spacing
+  // here is what actually makes it fit without scrolling.
+  gap: 16px;
   box-sizing: border-box;
   width: 100%;
-  padding: 48px 40px;
+  padding: 32px 40px;
 
   @media (min-width: 1024px) {
     width: clamp(400px, 35.5%, 518px);
@@ -63,8 +71,8 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 24px;
-  padding: 40px;
+  gap: 16px;
+  padding: 24px;
   border-radius: 19px;
   background: color.$neutral-0;
 
@@ -86,7 +94,7 @@
 .input-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .field {

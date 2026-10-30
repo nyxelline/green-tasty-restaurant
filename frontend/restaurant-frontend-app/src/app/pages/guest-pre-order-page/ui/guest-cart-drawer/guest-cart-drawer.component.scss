@@ -150,6 +150,34 @@
   text-align: center;
 }
 
+.empty--inline {
+  flex: 0 0 auto;
+  padding: 16px 24px 0;
+}
+
+.removed-list {
+  display: grid;
+  gap: 16px;
+  padding: 0 24px 16px;
+}
+
+.item--removed {
+  opacity: 0.65;
+
+  .img {
+    filter: grayscale(60%);
+  }
+}
+
+.removed-badge {
+  display: inline-block;
+  margin-top: 4px;
+  color: color.$red-400;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .empty-title {
   margin: 8px 0 0;
 }

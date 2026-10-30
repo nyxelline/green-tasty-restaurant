@@ -110,3 +110,25 @@ applied to this project's actual implemented features.
 2. Waiter can change a reservation's status only when it is assigned to them – attempting to update a reservation assigned to a different waiter is rejected (403).
 3. Waiter can view and confirm/cancel individual dishes in an order tied to a reservation assigned to them, or belonging to the customer who placed it; not any reservation in the system.
 4. Report generation/download and business reports are available to Waiters only, not to Customers.
+
+---
+
+## US06 – Reset a Forgotten Password
+
+| | |
+|---|---|
+| **Epic** | Authentication |
+| **US name** | Customer/Waiter Resets Forgotten Password |
+| **Role** | Customer / Waiter |
+| **Description** | As a user who forgot my password, I want to request a reset code by email and set a new password, so that I can regain access to my account without contacting support. |
+
+**Pre-conditions:**
+- User has a registered account in Cognito.
+
+**Acceptance Criteria (AC):**
+1. From the Sign In screen, the user can open "Forgot password?" and submit their email to request a reset code.
+2. The response is generic regardless of whether the email exists, so the flow cannot be used to enumerate registered accounts.
+3. The user enters the received code together with a new password (validated against the same password rules as registration) to complete the reset.
+4. An invalid or expired code is rejected with a clear error instead of resetting the password.
+5. After a successful reset, the user is returned to Sign In and can log in with the new password.
+

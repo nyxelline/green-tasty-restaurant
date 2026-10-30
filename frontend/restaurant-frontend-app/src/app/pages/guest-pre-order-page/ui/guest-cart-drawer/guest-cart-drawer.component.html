@@ -9,7 +9,7 @@
                 </button>
             </div>
 
-            @if (items().length === 0) {
+            @if (items().length === 0 && removedItems().length === 0) {
                 <div class="empty">
                     <img src="assets/svg/cart-empty-preorder.svg" alt="" aria-hidden="true" />
                     <h3 class="empty-title">Your cart is empty</h3>
@@ -17,6 +17,12 @@
                     <button type="button" class="button button--tertiary button--small go" (click)="goToMenu.emit()">Go to Menu</button>
                 </div>
             } @else {
+                @if (items().length === 0) {
+                    <div class="empty empty--inline">
+                        <span class="empty-text">All dishes in your cart were removed by the host - see below.</span>
+                    </div>
+                }
+
                 <div class="list">
                     @for (it of items(); track it.dishId) {
                         <div class="item">
@@ -24,7 +30,7 @@
 
                             <div class="info">
                                 <div class="name">{{ it.title }}</div>
-                                <div class="sub">Expected ready time - 10 minutes</div>
+                                <div class="sub">Prepared fresh for you</div>
 
                                 <div class="qty">
                                     <button type="button" class="qty-btn" [disabled]="busy()" (click)="dec.emit(it.dishId)" aria-label="Decrease quantity">
@@ -53,6 +59,23 @@
                         </div>
                     }
                 </div>
+
+                @if (removedItems().length > 0) {
+                    <div class="removed-list">
+                        @for (it of removedItems(); track it.dishId) {
+                            <div class="item item--removed">
+                                <img class="img" [src]="it.imageUrl" alt="" />
+
+                                <div class="info">
+                                    <div class="name">{{ it.title }}</div>
+                                    <span class="removed-badge">Removed by host</span>
+                                </div>
+
+                                <div class="price">{{ it.qty }}× {{ it.price | currency: '$' }}</div>
+                            </div>
+                        }
+                    </div>
+                }
 
                 <div class="footer">
                     @if (error()) {

@@ -421,6 +421,72 @@ public class GuestSessionService(
         return await BuildSessionsSnapshotAsync(groupReservationId);
     }
 
+    public async Task<IEnumerable<MergedDishResponse>> SubmitGroupPreOrderAsync(string userId, string groupReservationId, string reservationId)
+    {
+        await ValidateReservationOwnerAsync(groupReservationId, userId);
+
+        var group = await groupReservationRepository.GetGroupReservationByIdAsync(groupReservationId)
+            ?? throw new GroupReservationNotFoundException();
+
+        if (!string.Equals(group.ReservationId, reservationId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ValidationException("The provided reservationId does not match this group reservation.");
+        }
+
+        if (group.Status == GroupReservationStatus.Submitted)
+        {
+            throw new GroupReservationSubmittedException();
+        }
+
+        var order = await orderRepository.GetOrderByReservationIdAsync(reservationId)
+            ?? throw new ValidationException("Order not found.");
+
+        var submittedGuestSessions = (await guestSessionRepository.GetAllByGroupReservationIdAsync(groupReservationId))
+            .Where(session => !session.IsOwnerSession && session.IsSubmitted)
+            .ToList();
+
+        if (submittedGuestSessions.Count == 0)
+        {
+            throw new ValidationException("No submitted guest sessions found.");
+        }
+
+        var mergedQuantities = submittedGuestSessions
+            .SelectMany(session => session.Dishes ?? new List<OrderItem>())
+            .GroupBy(item => item.DishId)
+            .ToDictionary(group => group.Key, group => group.Sum(item => item.Quantity));
+
+        if (mergedQuantities.Count == 0)
+        {
+            throw new ValidationException("Submitted guest sessions contain no dishes.");
+        }
+
+        foreach (var (dishId, quantity) in mergedQuantities)
+        {
+            var existingItem = order.Dishes.FirstOrDefault(item => item.DishId == dishId);
+            if (existingItem is not null)
+            {
+                existingItem.Quantity += quantity;
+            }
+            else
+            {
+                order.Dishes.Add(new OrderItem
+                {
+                    DishId = dishId,
+                    Quantity = quantity,
+                    State = OrderItemState.Pending,
+                });
+            }
+        }
+
+        order.Status = OrderStatus.SubmittedByCustomer;
+        await orderRepository.SaveOrderAsync(order);
+
+        group.Status = GroupReservationStatus.Submitted;
+        await groupReservationRepository.SaveGroupReservationAsync(group);
+
+        return mergedQuantities.Select(kv => new MergedDishResponse(kv.Key, kv.Value));
+    }
+
     private async Task<GetAllSessionsResponse> BuildSessionsSnapshotAsync(string groupReservationId)
     {
         var sessions = (await guestSessionRepository.GetAllByGroupReservationIdAsync(groupReservationId))
@@ -743,7 +809,28 @@ public class GuestSessionService(
             name = user!.Attributes.First(a => a.Name == "given_name").Value;
         }
 
-        return new GetGuestSessionResponse(name, items, total, session.IsSubmitted);
+        // Dishes the owner removed from this guest's cart: the owner's own fetch of the removed
+        // dish won't be in `dishesById` above (it was already removed from session.Dishes before
+        // this call, not among dishIds there), so look them up separately rather than assuming
+        // they share the same dictionary.
+        var removedByOwner = Array.Empty<OrderItemResponse>();
+        if (session.OwnerRemovedDishes is { Count: > 0 })
+        {
+            var removedDishIds = session.OwnerRemovedDishes.Select(d => d.DishId).Distinct().ToArray();
+            var removedDishes = (await dishRepository.GetDishesByIdsAsync(removedDishIds)).ToDictionary(d => d.Id);
+
+            removedByOwner = session.OwnerRemovedDishes
+                .Where(d => removedDishes.ContainsKey(d.DishId))
+                .Select(d => new OrderItemResponse
+                {
+                    Dish = WithOrderPrice(DishMapper.ToDishResponse(removedDishes[d.DishId]), d.UnitPriceAtOrder),
+                    Quantity = d.Quantity,
+                    State = OrderItemState.Canceled,
+                })
+                .ToArray();
+        }
+
+        return new GetGuestSessionResponse(name, items, total, session.IsSubmitted, removedByOwner);
     }
 
 }

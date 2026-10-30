@@ -66,7 +66,7 @@ public class GetDishesByLocationIdHandler : IApiRequestHandler
         await batchGet.ExecuteAsync();
         var results = batchGet.Results;
 
-        var dishesListResponse = results.ConvertAll(DishMapper.ToDishListResponse);
+        var dishesListResponse = results.ConvertAll(dish => DishMapper.ToDishListResponse(dish));
 
         return ResponseBuilder.CreateSuccessResponse(dishesListResponse);
     }

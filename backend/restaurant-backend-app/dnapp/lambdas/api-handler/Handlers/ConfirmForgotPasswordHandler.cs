@@ -50,7 +50,7 @@ public class ConfirmForgotPasswordHandler : IApiRequestHandler
 
         try
         {
-            await _cognitoClient.ConfirmForgotPasswordAsync(new ConfirmForgotPasswordRequest
+            await _cognitoClient.ConfirmForgotPasswordAsync(new Amazon.CognitoIdentityProvider.Model.ConfirmForgotPasswordRequest
             {
                 ClientId = ResourceNames.ClientId,
                 Username = confirmRequest.Email,
@@ -84,11 +84,11 @@ public class ConfirmForgotPasswordHandler : IApiRequestHandler
         return ResponseBuilder.CreateSuccessResponse("Password has been reset successfully.");
     }
 
-    private static bool TryDeserializeRequest(APIGatewayProxyRequest request, out ConfirmForgotPasswordRequest confirmRequest)
+    private static bool TryDeserializeRequest(APIGatewayProxyRequest request, out APIHandler.Models.ConfirmForgotPasswordRequest confirmRequest)
     {
         try
         {
-            confirmRequest = JsonSerializer.Deserialize<ConfirmForgotPasswordRequest>(request.Body);
+            confirmRequest = JsonSerializer.Deserialize<APIHandler.Models.ConfirmForgotPasswordRequest>(request.Body);
             return confirmRequest != null;
         }
         catch (JsonException)
