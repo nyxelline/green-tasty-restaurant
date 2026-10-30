@@ -116,3 +116,34 @@ All defects below were found during manual testing of the deployed build and hav
 
 **Actual result:** Request succeeds – any waiter could change the status of any table, not just their own.
 **Expected result:** Only the assigned waiter can update the reservation's status; others get 403.
+
+---
+
+**ID: DR-09** – Waiter's reservation list fails entirely if a single reservation record can't be converted
+**Env:** P_PRD | **Priority:** High | **Severity:** Critical | **Status:** Open
+
+**Pre-conditions:** Waiter is authenticated; at least one reservation assigned to them has data that fails during response conversion (e.g. a dangling `TableId` whose table/location no longer exists, or an order lookup failure).
+
+**Steps:**
+1. Sign in as a waiter whose assigned reservations include at least one such "bad" record.
+2. Open the waiter dashboard ("Reservations").
+
+**Actual result:** `GET /reservations` returns `500 {"error":"Internal Server Error: Error while fetching reservation details."}`. The UI shows the contradictory "You have 0 reservations for any date, any time" together with "Reservations could not be loaded." The waiter cannot see **any** of their reservations, including the healthy ones.
+**Expected result:** One bad reservation record should not take down the whole list. The waiter should see every reservation that converts successfully, with the broken one flagged or omitted — matching how the customer-facing path already behaves (see Root cause).
+
+**Root cause:** `GetReservationsForUserHandler.cs` handles the two roles inconsistently:
+- `GetReservationsForCustomerAsync` wraps each reservation's conversion in try/catch and `continue`s past any that throw — a customer always gets a partial, degraded list.
+- `GetReservationsForWaiterAsync` does the opposite: the same per-item try/catch immediately `return`s a 500 for the **entire request** the moment any single reservation throws in `ConvertToResponse`.
+
+**Suggested fix:** Make `GetReservationsForWaiterAsync` skip (and log) a failing reservation the same way the customer path does, instead of aborting the whole response.
+
+
+---
+
+## Known Issues (not fixed / out of scope for this submission)
+
+These were observed during manual testing but are either unimplemented features or low-severity UX gaps rather than regressions in existing functionality.
+
+- **"Forgot password?" link is dead.** On the Sign In modal, the "Forgot password?" link has `href="#"` with no handler — clicking it does nothing. Password-reset flow was never implemented.
+- **Cancelling a reservation has no confirmation step.** Clicking "Cancel" on "My Reservations" cancels immediately with no "Are you sure?" dialog, even though the action is irreversible (no un-cancel / re-book shortcut).
+- **Dish `fats` value always displays as "0 g".** `DishListResponse.Fats` was mapped with `[DynamoDBProperty("fats")]` instead of `[JsonPropertyName("fats")]`, so the API serialized it as `"Fats"` (capitalized) while every other nutrition field used the correct lowercase key — the frontend never sees the real value. **Fix is written** (swapped to `[JsonPropertyName("fats")]`) but **not yet deployed** as of this writing; re-verify after the next `syndicate build`/`syndicate update`.
