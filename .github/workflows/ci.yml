@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/restaurant-frontend-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/restaurant-frontend-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        # Dummy URL: this job only checks that the production bundle compiles, it never
+        # calls this URL. Real deploys set BACKEND_URL to the live API Gateway endpoint.
+        env:
+          BACKEND_URL: https://example.invalid
+        run: npm run build
+
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/restaurant-backend-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore restaurant-backend-app.sln
+
+      - name: Build
+        run: dotnet build restaurant-backend-app.sln --no-restore
+
+      - name: Unit tests
+        run: dotnet test restaurant-backend-app.sln --no-build
+
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.10.0'
+
+      - name: Format check
+        run: terraform fmt -check -recursive
+
+      - name: Init (no backend, no AWS credentials needed)
+        run: terraform init -backend=false
+
+      - name: Validate
+        run: terraform validate
