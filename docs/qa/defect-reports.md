@@ -128,31 +128,11 @@ All defects below were found during manual testing of the deployed build and hav
 1. Sign in as a waiter whose assigned reservations include at least one such "bad" record.
 2. Open the waiter dashboard ("Reservations").
 
-**Actual result:** `GET /reservations` returns `500 {"error":"Internal Server Error: Error while fetching reservation details."}`. The UI shows the contradictory "You have 0 reservations for any date, any time" together with "Reservations could not be loaded." The waiter cannot see **any** of their reservations, including the healthy ones.
-**Expected result:** One bad reservation record should not take down the whole list. The waiter should see every reservation that converts successfully, with the broken one flagged or omitted — matching how the customer-facing path already behaves (see Root cause).
+**Actual result:** `GET /reservations` returns `500 {"error":"Internal Server Error: Error while fetching reservation details."}`. The waiter sees zero reservations, including healthy ones.
+**Expected result:** One bad reservation shouldn't take down the whole list, same as the customer-facing path (which skips bad records instead of failing entirely).
 
-**Root cause:** `GetReservationsForUserHandler.cs` handles the two roles inconsistently:
-- `GetReservationsForCustomerAsync` wraps each reservation's conversion in try/catch and `continue`s past any that throw — a customer always gets a partial, degraded list.
-- `GetReservationsForWaiterAsync` does the opposite: the same per-item try/catch immediately `return`s a 500 for the **entire request** the moment any single reservation throws in `ConvertToResponse`.
+**Root cause:** `GetReservationsForUserHandler.cs` → `GetReservationsForWaiterAsync` aborts the whole request with a 500 the moment any single reservation fails conversion, instead of skipping it like the customer path does.
 
-**Suggested fix:** Make `GetReservationsForWaiterAsync` skip (and log) a failing reservation the same way the customer path does, instead of aborting the whole response.
-
-
----
-
-**ID: DR-10** – "Most Popular Dishes" / browsing menu mixes all locations together with no dedup, making distinct dishes look duplicated
-**Env:** P_PRD | **Priority:** Medium | **Severity:** Minor | **Status:** Open
-
-**Pre-conditions:** More than one location has a dish with the same name (e.g. "Margherita Pizza" exists at both 14 Baratashvili Street and 48 Rustaveli Avenue).
-
-**Steps:**
-1. Open the main page or the Menu page while browsing (no reservation/location context selected).
-2. Look at "Most Popular Dishes" / the dish grid.
-
-**Actual result:** The same dish name appears twice (e.g. "Margherita Pizza" and "Grilled Salmon" each shown twice) with no location label to tell them apart, which reads as a duplicate-rendering bug. Conversely, because the list is an unfiltered dump of every location's dishes rather than a true top-N "popular" ranking, dishes a user expects to see can appear to be missing depending on sort order.
-**Expected result:** Either scope the list to one location (consistent with the rest of the app, which is location-scoped everywhere else), or show a location label per dish and genuinely rank/dedupe by popularity instead of returning a raw table scan.
-
-**Root cause:** `GetPopularDishesHandler.cs` does `_dbContext.ScanAsync<Dish>(new List<ScanCondition>(), _dishesConfig)` — an unfiltered scan of the entire Dishes table across all locations, mapped straight to the response with no location filter, no popularity ranking, and no de-duplication by name.
 
 ## Known Issues (not fixed / out of scope for this submission)
 
@@ -160,4 +140,5 @@ These were observed during manual testing but are either unimplemented features 
 
 - **"Forgot password?" link is dead.** On the Sign In modal, the "Forgot password?" link has `href="#"` with no handler — clicking it does nothing. Password-reset flow was never implemented.
 - **Cancelling a reservation has no confirmation step.** Clicking "Cancel" on "My Reservations" cancels immediately with no "Are you sure?" dialog, even though the action is irreversible (no un-cancel / re-book shortcut).
+- **"Most Popular Dishes" mixes all locations with no dedup/label.** `GetPopularDishesHandler.cs` does an unfiltered scan of the whole Dishes table, so a dish shared by two locations (e.g. Margherita Pizza, Grilled Salmon) shows up twice with no location tag — reads as a duplicate bug, nothing is actually missing.
 - **Dish `fats` value always displays as "0 g".** `DishListResponse.Fats` was mapped with `[DynamoDBProperty("fats")]` instead of `[JsonPropertyName("fats")]`, so the API serialized it as `"Fats"` (capitalized) while every other nutrition field used the correct lowercase key — the frontend never sees the real value. **Fix is written** (swapped to `[JsonPropertyName("fats")]`) but **not yet deployed** as of this writing; re-verify after the next `syndicate build`/`syndicate update`.

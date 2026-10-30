@@ -119,22 +119,3 @@ The waiter sees every reservation that converts successfully; the one broken rec
 
 **Actual result:**
 `GET /reservations` returns 500 and the waiter sees zero reservations at all, including the healthy ones. See DR-09.
-
----
-
-**ID: TC-08** – Verify the browsing-mode dish list is location-scoped and free of duplicate-looking entries
-**Status:** Failed (see DR-10)
-**Covers:** US01
-
-**Pre-conditions:**
-At least two locations share a dish with the same name.
-
-**Steps:**
-1. Open the main page or Menu page without a reservation/location context selected.
-2. Review the "Most Popular Dishes" / dish grid.
-
-**Expected result:**
-The list is scoped to a single location, or each entry is clearly labeled by location, with no two entries appearing to be exact unlabeled duplicates.
-
-**Actual result:**
-Dishes from all three locations are merged into one flat, unlabeled list; dishes with the same name from different locations appear as indistinguishable duplicates. See DR-10.
