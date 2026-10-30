@@ -100,3 +100,22 @@ Two waiters, A and B, are both authenticated; reservation R is assigned to waite
 
 **Expected result:**
 Request is rejected with 403 ("You can only update the status of reservations assigned to you.").
+
+---
+
+**ID: TC-07** – Verify one bad reservation record does not take down a waiter's entire reservation list
+**Status:** Failed (see DR-09)
+**Covers:** US05
+
+**Pre-conditions:**
+Waiter is authenticated; among their assigned reservations, at least one record fails response conversion (e.g. dangling `TableId`, or an order-lookup error).
+
+**Steps:**
+1. Sign in as the affected waiter.
+2. Open the waiter dashboard ("Reservations").
+
+**Expected result:**
+The waiter sees every reservation that converts successfully; the one broken record is skipped (and logged), not surfaced as a blanket failure.
+
+**Actual result:**
+`GET /reservations` returns 500 and the waiter sees zero reservations at all, including the healthy ones. See DR-09.

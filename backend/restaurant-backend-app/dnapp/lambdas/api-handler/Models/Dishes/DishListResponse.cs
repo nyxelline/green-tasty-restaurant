@@ -36,7 +36,7 @@ public class DishListResponse
     [JsonPropertyName("proteins")]
     public required string Proteins { get; set; }
 
-    [DynamoDBProperty("fats")]
+    [JsonPropertyName("fats")]
     public required string Fats { get; set; }
 
     [JsonPropertyName("carbohydrates")]
