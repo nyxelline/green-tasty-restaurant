@@ -87,8 +87,10 @@ public class GetReservationsForUserHandler : IApiRequestHandler
             }
             catch (Exception ex)
             {
-                context.Logger.LogLine($"Error converting reservation {reservation.Id} to response: {ex.Message}");
-                return ResponseBuilder.CreateErrorResponse(500, "Internal Server Error: Error while fetching reservation details.", context.Logger);
+                // Skip a single bad record instead of failing the whole list, matching
+                // GetReservationsForCustomerAsync below.
+                context.Logger.LogLine($"Skipping reservation {reservation.Id} for waiter {userId}: {ex.Message}");
+                continue;
             }
         }
 

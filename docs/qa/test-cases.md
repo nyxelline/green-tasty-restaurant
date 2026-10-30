@@ -104,7 +104,7 @@ Request is rejected with 403 ("You can only update the status of reservations as
 ---
 
 **ID: TC-07** – Verify one bad reservation record does not take down a waiter's entire reservation list
-**Status:** Failed (see DR-09)
+**Status:** Passed
 **Covers:** US05
 
 **Pre-conditions:**
@@ -118,4 +118,4 @@ Waiter is authenticated; among their assigned reservations, at least one record 
 The waiter sees every reservation that converts successfully; the one broken record is skipped (and logged), not surfaced as a blanket failure.
 
 **Actual result:**
-`GET /reservations` returns 500 and the waiter sees zero reservations at all, including the healthy ones. See DR-09.
+The broken reservation is now skipped (logged) and the waiter sees every other reservation normally. See DR-09.

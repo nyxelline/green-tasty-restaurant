@@ -120,7 +120,7 @@ All defects below were found during manual testing of the deployed build and hav
 ---
 
 **ID: DR-09** – Waiter's reservation list fails entirely if a single reservation record can't be converted
-**Env:** P_PRD | **Priority:** High | **Severity:** Critical | **Status:** Open
+**Env:** P_PRD | **Priority:** High | **Severity:** Critical | **Status:** Fixed
 
 **Pre-conditions:** Waiter is authenticated; at least one reservation assigned to them has data that fails during response conversion (e.g. a dangling `TableId` whose table/location no longer exists, or an order lookup failure).
 
