@@ -21,19 +21,22 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs/operators';
 
 import { LoginModalComponent } from '@app/auth/components/login/login-modal/login-modal.component';
+import { DishCardComponent } from '@app/shared/custom-components/dish-card/dish-card.component';
+import { DishModalComponent } from '@app/components/dish-modal/dish-modal.component';
 
 @Component({
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink, LocationCardComponent, FeedbackWindowComponent, LoginModalComponent, ],
+  imports: [CommonModule, RouterLink, LocationCardComponent, FeedbackWindowComponent, LoginModalComponent, DishCardComponent, DishModalComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   providers: [LocationsService, DishesService, ReservationService, UsersService, FeedbacksService],
 })
 export class MainPageComponent implements OnInit {
   dishes: DishListResponse[] = [];
   locations: LocationResponse[] = [];
+  selectedDish: DishListResponse | null = null;
 
   showFeedbackModal = false;
   selectedReservationCustomer!: ReservationCustomer;
@@ -91,6 +94,14 @@ export class MainPageComponent implements OnInit {
         weight: dish.weight || 'N/A',
       }));
     });
+  }
+
+  openDishModal(dish: DishListResponse): void {
+    this.selectedDish = dish;
+  }
+
+  closeDishModal(): void {
+    this.selectedDish = null;
   }
 
   loadLocations(): void {

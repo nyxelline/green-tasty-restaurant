@@ -1,5 +1,4 @@
 @use 'app/shared/styles/abstracts/colors' as color;
-@use '../../shared/styles/card' as card;
 @use 'sass:color' as col;
 
 :host {
@@ -122,8 +121,12 @@
 
 // CONTENT SECTIONS
 .content-sections {
-  max-width: 100%;
-  margin: 3.75rem 3.25rem 0;
+  // Capped + auto-centered instead of max-width: 100%, so on a very wide/ultra-wide monitor
+  // the row of cards below doesn't stretch across the whole screen leaving huge gaps between
+  // them — the content column now tops out at a normal page width and centers itself.
+  width: calc(100% - 6.5rem);
+  max-width: 87.5rem;
+  margin: 3.75rem auto 0;
   padding-bottom: 3.3125rem;
   display: flex;
   flex-direction: column;
@@ -160,70 +163,17 @@
 
   .dish-cards {
     width: 100%;
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    gap: 2%;
+    display: grid;
+    // Fixed 4-column grid: every card sits in its own equal-width column, so the row is
+    // always evenly filled on any monitor size. justify-items: center keeps each card at its
+    // own natural/capped size (see maxWidth="220px" passed to app-dish-card in the template)
+    // instead of stretching to fill its column on very wide screens. app-dish-card renders
+    // its own markup/styles as a separate component, so card sizing has to go through its
+    // maxWidth input rather than a .dish-card rule here (a rule here can't reach inside it).
+    grid-template-columns: repeat(4, 1fr);
+    justify-items: center;
+    gap: 1.25rem;
     margin: 0;
-  }
-
-  .dish-card {
-    @include card.common-card;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1.5rem;
-    text-decoration: none;
-    flex: 1 1 0;
-    width: 0;
-    gap: 1rem;
-    min-width: 0;
-    box-sizing: border-box;
-
-    .dish-image {
-      width: 100%;
-      max-width: 12.25rem;
-      height: auto;
-      aspect-ratio: 1 / 1;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .dish-info {
-      display: flex;
-      flex-direction: row;
-      align-items: start;
-      justify-content: space-between;
-      width: 100%;
-      gap: 0.5rem;
-
-      .dish-name {
-        font-weight: 500;
-        font-size: 1rem;
-        line-height: 1.5rem;
-        color: color.$neutral-900;
-        margin: 0;
-      }
-
-      .dish-meta {
-        display: flex;
-        flex-direction: column;
-        align-items: end;
-        gap: 0.25rem;
-
-        .dish-price {
-          font-weight: 500;
-          font-size: 1rem;
-          line-height: 1.5rem;
-          color: color.$green-800;
-          margin: 0;
-        }
-
-        .dish-weight {
-          font-size: 0.75rem;
-          line-height: 1rem;
-        }
-      }
-    }
   }
 }
 
@@ -238,11 +188,6 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
     margin: 0;
-
-    .dish-card {
-      width: 100%;
-      padding: 0.75rem;
-    }
   }
 }
 

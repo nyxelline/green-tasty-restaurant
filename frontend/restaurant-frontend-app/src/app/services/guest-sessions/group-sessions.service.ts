@@ -49,6 +49,21 @@ export class GroupSessionsService {
       .pipe(map(mapGroupSessions));
   }
 
+  /**
+   * Owner-only: consolidates every submitted guest session's dishes (by dishId) into the
+   * reservation's real Order, moves the Order to SubmittedByCustomer, and closes the group
+   * (Status -> Submitted). Returns the merged dish list the backend added to the order.
+   */
+  submitGroupPreOrder$(
+    groupReservationId: string,
+    reservationId: string
+  ): Observable<{ dishId: string; quantity: number }[]> {
+    return this.http.post<{ dishId: string; quantity: number }[]>(
+      `${this.baseUrl}/group-reservations/${encodeURIComponent(groupReservationId)}/submit`,
+      { reservationId }
+    );
+  }
+
   private sessionsUrl(groupReservationId: string): string {
     return `${this.baseUrl}/guest/groups/${encodeURIComponent(groupReservationId)}/sessions`;
   }

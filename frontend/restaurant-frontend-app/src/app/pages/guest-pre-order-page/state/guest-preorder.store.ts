@@ -4,9 +4,10 @@ import { firstValueFrom } from 'rxjs';
 import { GuestInviteService } from '@app/services/reservation/guest-invite.service';
 import { GuestInvite } from '@app/models/reservations/guest-invite.model';
 import { GuestMenuDish } from '@app/services/guest-sessions/guest-sessions.service';
-import { GuestSessionsService } from '@app/services/guest-sessions/guest-sessions.service';
+import { GuestSessionItem, GuestSessionsService } from '@app/services/guest-sessions/guest-sessions.service';
 
 export type GuestPreorderStatus = 'active' | 'submitted';
+export type GuestInviteErrorKind = 'expired' | 'full' | 'retryable';
 
 export interface GuestInviteVm {
     inviterName: string;
@@ -33,11 +34,14 @@ export class GuestPreorderStore {
 
     readonly invite = signal<GuestInvite | null>(null);
     readonly inviteLoading = signal(false);
-    readonly inviteError = signal<'expired' | 'retryable' | null>(null);
+    readonly inviteError = signal<GuestInviteErrorKind | null>(null);
 
     readonly guestName = signal<string>('');
     readonly status = signal<GuestPreorderStatus>('active');
     readonly cartItems = signal<GuestCartItem[]>([]);
+    // Dishes the owner removed from this guest's cart since the guest last synced - read-only,
+    // shown with a "Removed by host" badge, never counted into the total.
+    readonly removedByOwner = signal<GuestCartItem[]>([]);
 
     private readonly guestSessionsService = inject(GuestSessionsService);
 
@@ -95,6 +99,7 @@ export class GuestPreorderStore {
         // If guest was already joined on this device/browser, load menu automatically
         if (this.guestSessionId() && this.guestSessionToken()) {
             void this.loadMenu();
+            void this.syncSession();
         }
 
         if (name) this.guestName.set(name);
@@ -118,14 +123,42 @@ export class GuestPreorderStore {
             this.invite.set(inv);
         } catch (error) {
             this.invite.set(null);
-            const status = error instanceof HttpErrorResponse ? error.status : null;
-            this.inviteError.set(status === 404 || status === 410 ? 'expired' : 'retryable');
+            this.inviteError.set(this.resolveInviteError(error));
         } finally {
             this.inviteLoading.set(false);
         }
     }
 
+    // The backend tells us exactly why the invite can't be used (errorCode on 400s); only a
+    // genuinely unknown/network failure is worth a "try again" button, the rest are end-states.
+    private resolveInviteError(error: unknown): GuestInviteErrorKind {
+        if (!(error instanceof HttpErrorResponse)) return 'retryable';
+
+        if (error.status === 404 || error.status === 410) return 'expired';
+
+        if (error.status === 400) {
+            const errorCode = (error.error as { errorCode?: string } | null)?.errorCode;
+            switch (errorCode) {
+                case 'GroupReservationExpired':
+                case 'GroupReservationSubmitted':
+                    // this endpoint reports both "closed" and "already submitted" as Expired
+                    return 'expired';
+                case 'GuestLimitExceeded':
+                    return 'full';
+                default:
+                    return 'retryable';
+            }
+        }
+
+        return 'retryable';
+    }
+
     async join(name: string) {
+        // Guards a double "Browse Menu" click / repeated Enter from firing CreateGuestSessionAsync
+        // twice for one real join - each call consumes a distinct guest slot on the backend, so a
+        // duplicate request silently eats the group's guest capacity.
+        if (this.joinLoading()) return;
+
         const inv = this.invite();
         if (!inv) {
             this.joinError.set('Invite is not loaded yet');
@@ -155,6 +188,7 @@ export class GuestPreorderStore {
             this.guestSessionId.set(res.SessionId);
             this.guestSessionToken.set(res.SessionToken);
             await this.loadMenu();
+            await this.syncSession();
         } catch (e) {
             console.log('[join error]', e);
             this.joinError.set('Failed to join session');
@@ -221,6 +255,33 @@ export class GuestPreorderStore {
         } finally {
             this.menuLoading.set(false);
         }
+    }
+
+    // Re-pulls this guest's cart from the backend (the source of truth), so dishes the owner
+    // removed since the last sync show up instead of only ever reflecting local optimistic edits.
+    async syncSession(): Promise<void> {
+        const sessionId = this.guestSessionId();
+        const token = this.guestSessionToken();
+        if (!sessionId || !token) return;
+
+        try {
+            const res = await firstValueFrom(this.guestSessionsService.getSession(sessionId, token));
+            this.cartItems.set(res.items.map(item => this.toCartItem(item)));
+            this.removedByOwner.set(res.removedByOwner.map(item => this.toCartItem(item)));
+        } catch (e) {
+            console.log('[session sync error]', e);
+            // best-effort: keep whatever local cart state we already had
+        }
+    }
+
+    private toCartItem(item: GuestSessionItem): GuestCartItem {
+        return {
+            dishId: item.dish.id,
+            title: item.dish.name,
+            price: item.dish.price,
+            imageUrl: item.dish.imageUrl ?? undefined,
+            qty: item.quantity,
+        };
     }
 
     setGuestName(name: string) {
@@ -320,6 +381,7 @@ export class GuestPreorderStore {
             this.guestSessionId.set(session.SessionId);
             this.guestSessionToken.set(session.SessionToken);
             await this.loadMenu();
+            await this.syncSession();
         } catch {
             this.menuError.set('Could not start a new pre-order. Please try again.');
         } finally {

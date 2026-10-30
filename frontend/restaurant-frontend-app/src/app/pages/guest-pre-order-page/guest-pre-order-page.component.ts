@@ -95,7 +95,10 @@ export class GuestPreOrderPageComponent {
         });
     }
 
-    openCart() { this.isCartOpen.set(true); }
+    openCart() {
+        this.isCartOpen.set(true);
+        void this.store.syncSession();
+    }
     closeCart() { this.isCartOpen.set(false); }
 
     retryInviteLoad(): void {

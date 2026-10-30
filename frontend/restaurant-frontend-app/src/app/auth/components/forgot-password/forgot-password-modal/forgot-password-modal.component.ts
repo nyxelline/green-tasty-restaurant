@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { AuthenticationService } from '@app/auth/services/authentication.service';
@@ -52,13 +52,8 @@ export class ForgotPasswordModalComponent {
     { validators: (control) => this.formValidatorsService.passwordMatchValidator(control) },
   );
 
-  get email() {
-    return this.requestForm.get('email');
-  }
-
-  get code() {
-    return this.resetForm.get('code');
-  }
+  readonly email = computed(() => this.requestForm.get('email'));
+  readonly code = computed(() => this.resetForm.get('code'));
 
   get password() {
     return this.resetForm.get('password') as FormControl;
@@ -108,7 +103,7 @@ export class ForgotPasswordModalComponent {
     try {
       const { code, password, confirmPassword } = this.resetForm.value;
       const result = await this.auth.confirmForgotPassword(
-        this.email!.value!,
+        this.email()!.value!,
         code!,
         password!,
         confirmPassword!,
@@ -120,7 +115,7 @@ export class ForgotPasswordModalComponent {
       }
 
       this.step.set('done');
-      this.passwordReset.emit(this.email!.value!);
+      this.passwordReset.emit(this.email()!.value!);
     } finally {
       this.isLoading.set(false);
     }

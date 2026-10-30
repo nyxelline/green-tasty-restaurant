@@ -36,6 +36,25 @@ export interface GuestMenuResponse {
     dishes: Record<GuestMenuCategoryKey, GuestMenuDish[]>;
 }
 
+export interface GuestSessionItem {
+    dish: {
+        id: string;
+        name: string;
+        price: number;
+        imageUrl?: string | null;
+    };
+    quantity: number;
+    state: number; // 0 Pending, 1 Confirmed, 2 Canceled
+}
+
+export interface GetGuestSessionResponse {
+    name: string;
+    items: GuestSessionItem[];
+    total: number;
+    isSubmitted: boolean;
+    removedByOwner: GuestSessionItem[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class GuestSessionsService {
     private readonly baseUrl = inject(API_BASE_URL);
@@ -43,6 +62,15 @@ export class GuestSessionsService {
 
     createSession(body: CreateGuestSessionRequest) {
         return this.http.post<CreateGuestSessionResponse>(`${this.baseUrl}/guest/sessions`, body);
+    }
+
+    // The source of truth for this guest's own cart, including dishes the owner has since
+    // removed (removedByOwner) - the page should re-pull this rather than trust local state alone.
+    getSession(guestSessionId: string, sessionToken: string) {
+        return this.http.get<GetGuestSessionResponse>(
+            `${this.baseUrl}/guest/sessions/${guestSessionId}`,
+            { headers: this.authHeaders(sessionToken) }
+        );
     }
 
     getMenu(guestSessionId: string, sessionToken: string) {

@@ -41,7 +41,7 @@ public class GetPopularDishesHandler : IApiRequestHandler
             .GroupBy(dish => dish.Name, StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First());
 
-        var dishesListResponse = uniqueDishes.Select(DishMapper.ToDishListResponse).ToList();
+        var dishesListResponse = uniqueDishes.Select(dish => DishMapper.ToDishListResponse(dish)).ToList();
 
         return ResponseBuilder.CreateSuccessResponse(dishesListResponse);
     }

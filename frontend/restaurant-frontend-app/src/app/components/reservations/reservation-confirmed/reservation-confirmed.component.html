@@ -98,7 +98,7 @@
         type="button"
         variant="secondary"
         size="large"
-        (click)="onCancel()"
+        (click)="requestCancel()"
       >
         Cancel Reservation
       </app-custom-button>
@@ -114,3 +114,18 @@
     </div>
   </section>
 </div>
+
+@if (showCancelConfirm()) {
+  <app-modal title="Cancel this reservation?" width="400px" (closed)="dismissCancel()">
+    <p>This will cancel your reservation at {{ reservation().restaurantName }}. This can't be undone.</p>
+
+    <div modal-actions class="actions">
+      <button type="button" class="button button--secondary button--large" (click)="dismissCancel()">
+        Keep reservation
+      </button>
+      <button type="button" class="button button--tertiary button--large" (click)="confirmCancel()">
+        Cancel reservation
+      </button>
+    </div>
+  </app-modal>
+}

@@ -64,11 +64,11 @@ public class ForgotPasswordHandler : IApiRequestHandler
         return ResponseBuilder.CreateSuccessResponse(GenericSuccessMessage);
     }
 
-    private static bool TryDeserializeRequest(APIGatewayProxyRequest request, out ForgotPasswordRequest forgotPasswordRequest)
+    private static bool TryDeserializeRequest(APIGatewayProxyRequest request, out APIHandler.Models.ForgotPasswordRequest forgotPasswordRequest)
     {
         try
         {
-            forgotPasswordRequest = JsonSerializer.Deserialize<ForgotPasswordRequest>(request.Body);
+            forgotPasswordRequest = JsonSerializer.Deserialize<APIHandler.Models.ForgotPasswordRequest>(request.Body);
             return forgotPasswordRequest != null;
         }
         catch (JsonException)

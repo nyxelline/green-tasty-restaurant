@@ -13,6 +13,9 @@ import { GuestCartItem } from '@app/pages/guest-pre-order-page/state/guest-preor
 export class GuestCartDrawerComponent {
     readonly open = input(false);
     readonly items = input<GuestCartItem[]>([]);
+    // Dishes the owner removed from this guest's cart - shown read-only with a badge, never
+    // part of qty/remove actions or the total below.
+    readonly removedItems = input<GuestCartItem[]>([]);
     readonly total = input(0);
     readonly busy = input(false);
     readonly error = input<string | null>(null);

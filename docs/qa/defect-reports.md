@@ -4,6 +4,13 @@ Format follows the course template (ID/Summary/Env-Priority-Severity, Pre-condit
 All defects below were found during manual testing of the deployed build and have since been fixed;
 `Status` reflects the state at the time of writing.
 
+## Known Issues (not fixed)
+
+- **Possible race condition in table availability search** – `TableService.cs` (`GetAvailableTablesAsync`)
+  collects results from concurrent per-table checks into a shared, non-thread-safe `List<Table>`.
+  Under concurrent load this could intermittently drop a genuinely free table from the results with
+  no error shown. Found via code review only; not confirmed live, needs a load test to reproduce.
+
 ---
 
 **ID: DR-01** – Submitted pre-order dish shows "(Unknown)" status instead of its real state
@@ -79,21 +86,7 @@ All defects below were found during manual testing of the deployed build and hav
 
 ---
 
-**ID: DR-06** – Booking time-slot grid shows the whole day regardless of the selected time
-**Env:** P_PRD | **Priority:** Low | **Severity:** Minor | **Status:** Fixed
-
-**Pre-conditions:** Customer is booking a table and has selected a specific time.
-
-**Steps:**
-1. Select a time, e.g. 18:00, while browsing tables.
-2. Look at the per-table time grid.
-
-**Actual result:** Grid shows every slot for the entire day, making the selected time hard to find and the filter feel ineffective.
-**Expected result:** Grid centers on the selected time with a reasonable window around it (±2h), not the full day.
-
----
-
-**ID: DR-07** – Cancelled pre-order dishes silently disappear from the guest's own view
+**ID: DR-06** – Cancelled pre-order dishes silently disappear from the guest's own view
 **Env:** P_PRD | **Priority:** Medium | **Severity:** Major | **Status:** Fixed
 
 **Pre-conditions:** Owner has removed/rejected a dish from a guest's submitted cart.
@@ -106,7 +99,7 @@ All defects below were found during manual testing of the deployed build and hav
 
 ---
 
-**ID: DR-08** – Waiter could update the status of reservations not assigned to them
+**ID: DR-07** – Waiter could update the status of reservations not assigned to them
 **Env:** P_PRD | **Priority:** High | **Severity:** Critical | **Status:** Fixed
 
 **Pre-conditions:** Two waiters exist; a reservation is assigned to waiter A only.
@@ -119,7 +112,7 @@ All defects below were found during manual testing of the deployed build and hav
 
 ---
 
-**ID: DR-09** – Waiter's reservation list fails entirely if a single reservation record can't be converted
+**ID: DR-08** – Waiter's reservation list fails entirely if a single reservation record can't be converted
 **Env:** P_PRD | **Priority:** High | **Severity:** Critical | **Status:** Fixed
 
 **Pre-conditions:** Waiter is authenticated; at least one reservation assigned to them has data that fails during response conversion (e.g. a dangling `TableId` whose table/location no longer exists, or an order lookup failure).
@@ -132,13 +125,3 @@ All defects below were found during manual testing of the deployed build and hav
 **Expected result:** One bad reservation shouldn't take down the whole list, same as the customer-facing path (which skips bad records instead of failing entirely).
 
 **Root cause:** `GetReservationsForUserHandler.cs` → `GetReservationsForWaiterAsync` aborts the whole request with a 500 the moment any single reservation fails conversion, instead of skipping it like the customer path does.
-
-
-## Known Issues (not fixed / out of scope for this submission)
-
-These were observed during manual testing but are either unimplemented features or low-severity UX gaps rather than regressions in existing functionality.
-
-- **"Forgot password?" link is dead.** On the Sign In modal, the "Forgot password?" link has `href="#"` with no handler — clicking it does nothing. Password-reset flow was never implemented.
-- **Cancelling a reservation has no confirmation step.** Clicking "Cancel" on "My Reservations" cancels immediately with no "Are you sure?" dialog, even though the action is irreversible (no un-cancel / re-book shortcut).
-- **"Most Popular Dishes" mixes all locations with no dedup/label.** `GetPopularDishesHandler.cs` does an unfiltered scan of the whole Dishes table, so a dish shared by two locations (e.g. Margherita Pizza, Grilled Salmon) shows up twice with no location tag — reads as a duplicate bug, nothing is actually missing.
-- **Dish `fats` value always displays as "0 g".** `DishListResponse.Fats` was mapped with `[DynamoDBProperty("fats")]` instead of `[JsonPropertyName("fats")]`, so the API serialized it as `"Fats"` (capitalized) while every other nutrition field used the correct lowercase key — the frontend never sees the real value. **Fix is written** (swapped to `[JsonPropertyName("fats")]`) but **not yet deployed** as of this writing; re-verify after the next `syndicate build`/`syndicate update`.

@@ -1,0 +1,164 @@
+{
+  "Dishes": [
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "8f001a26-e7ff-46d1-bbe4-45ce54f5b05c" },
+          "name": { "S": "Spring Salad" },
+          "imageUrl": { "S": "assets/img/dishes/spring-salad-v2.jpg" },
+          "price": { "N": "12" },
+          "state": { "N": "1" },
+          "dishType": { "N": "0" },
+          "weight": { "S": "180 g" },
+          "description": { "S": "Fresh greens, radish, cucumber, and herb dressing." },
+          "calories": { "S": "140 kcal" },
+          "proteins": { "S": "4 g" },
+          "fats": { "S": "9 g" },
+          "carbohydrates": { "S": "12 g" },
+          "vitamins": { "S": "A, C, K" },
+          "locationId": { "S": "7d598da3-0887-4a04-a3a1-fe26d8a4a4f2" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "d5cd8a5b-5abf-44ef-9364-2d9d4d3b3cfa" },
+          "name": { "S": "Green Asparagus Salad" },
+          "imageUrl": { "S": "assets/img/dishes/green-asparagus-salad.jpg" },
+          "price": { "N": "12" },
+          "state": { "N": "1" },
+          "dishType": { "N": "0" },
+          "weight": { "S": "190 g" },
+          "description": { "S": "Grilled asparagus, lemon, and shaved parmesan." },
+          "calories": { "S": "190 kcal" },
+          "proteins": { "S": "6 g" },
+          "fats": { "S": "12 g" },
+          "carbohydrates": { "S": "14 g" },
+          "vitamins": { "S": "A, C, K, Folate" },
+          "locationId": { "S": "2de08053-9bec-4662-bf56-2ccb70aeeb78" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "7d1e30eb-0dde-4f09-a293-6c9d71a6585a" },
+          "name": { "S": "Pumpkin Cream Soup" },
+          "imageUrl": { "S": "assets/img/dishes/pumpkin-cream-soup.jpg" },
+          "price": { "N": "9" },
+          "state": { "N": "1" },
+          "dishType": { "N": "0" },
+          "weight": { "S": "300 g" },
+          "description": { "S": "Roasted pumpkin, coconut cream, and toasted seeds." },
+          "calories": { "S": "210 kcal" },
+          "proteins": { "S": "4 g" },
+          "fats": { "S": "11 g" },
+          "carbohydrates": { "S": "26 g" },
+          "vitamins": { "S": "A, C, Potassium" },
+          "locationId": { "S": "98c4acc4-ca8b-4416-be9d-ef40f1e73e0a" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "b1bfb7aa-93c8-4da3-8f80-b9955c6cc9aa" },
+          "name": { "S": "Veggie Burger" },
+          "imageUrl": { "S": "assets/img/dishes/veggie-burger.jpg" },
+          "price": { "N": "16" },
+          "state": { "N": "1" },
+          "dishType": { "N": "1" },
+          "weight": { "S": "380 g" },
+          "description": { "S": "Chickpea patty, avocado, and sweet potato fries." },
+          "calories": { "S": "620 kcal" },
+          "proteins": { "S": "22 g" },
+          "fats": { "S": "24 g" },
+          "carbohydrates": { "S": "68 g" },
+          "vitamins": { "S": "Iron, B6, Folate" },
+          "locationId": { "S": "7d598da3-0887-4a04-a3a1-fe26d8a4a4f2" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "fe106e11-a2ff-417f-9fa5-14b6d9b27365" },
+          "name": { "S": "Chicken Teriyaki Bowl" },
+          "imageUrl": { "S": "assets/img/dishes/chicken-teriyaki-bowl.jpg" },
+          "price": { "N": "17" },
+          "state": { "N": "0" },
+          "dishType": { "N": "1" },
+          "weight": { "S": "400 g" },
+          "description": { "S": "Rice, grilled chicken, edamame, and sesame." },
+          "calories": { "S": "590 kcal" },
+          "proteins": { "S": "38 g" },
+          "fats": { "S": "16 g" },
+          "carbohydrates": { "S": "64 g" },
+          "vitamins": { "S": "B6, B12, Iron" },
+          "locationId": { "S": "2de08053-9bec-4662-bf56-2ccb70aeeb78" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "d0e7883f-2b42-449f-874f-80e6f912774d" },
+          "name": { "S": "Berry Cheesecake" },
+          "imageUrl": { "S": "assets/img/dishes/berry-cheesecake.jpg" },
+          "price": { "N": "8" },
+          "state": { "N": "1" },
+          "dishType": { "N": "2" },
+          "weight": { "S": "140 g" },
+          "description": { "S": "Creamy cheesecake with a mixed forest berry topping." },
+          "calories": { "S": "380 kcal" },
+          "proteins": { "S": "6 g" },
+          "fats": { "S": "24 g" },
+          "carbohydrates": { "S": "34 g" },
+          "vitamins": { "S": "Calcium, Vitamin A" },
+          "locationId": { "S": "98c4acc4-ca8b-4416-be9d-ef40f1e73e0a" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "220f7bc6-8b7b-4b53-ba38-046b74a83b91" },
+          "name": { "S": "Chocolate Fondant" },
+          "imageUrl": { "S": "assets/img/dishes/chocolate-fondant.jpg" },
+          "price": { "N": "9" },
+          "state": { "N": "1" },
+          "dishType": { "N": "2" },
+          "weight": { "S": "150 g" },
+          "description": { "S": "Warm dark chocolate cake with a molten center, served with vanilla ice cream." },
+          "calories": { "S": "430 kcal" },
+          "proteins": { "S": "7 g" },
+          "fats": { "S": "26 g" },
+          "carbohydrates": { "S": "42 g" },
+          "vitamins": { "S": "Iron, Calcium" },
+          "locationId": { "S": "7d598da3-0887-4a04-a3a1-fe26d8a4a4f2" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "b5c5cb60-ec92-4504-91d5-856860689251" },
+          "name": { "S": "Lemon Sorbet" },
+          "imageUrl": { "S": "assets/img/dishes/lemon-sorbet.jpg" },
+          "price": { "N": "6" },
+          "state": { "N": "1" },
+          "dishType": { "N": "2" },
+          "weight": { "S": "120 g" },
+          "description": { "S": "Vegan lemon sorbet with fresh mint." },
+          "calories": { "S": "110 kcal" },
+          "proteins": { "S": "0 g" },
+          "fats": { "S": "0 g" },
+          "carbohydrates": { "S": "27 g" },
+          "vitamins": { "S": "Vitamin C" },
+          "locationId": { "S": "2de08053-9bec-4662-bf56-2ccb70aeeb78" }
+        }
+      }
+    }
+  ]
+}

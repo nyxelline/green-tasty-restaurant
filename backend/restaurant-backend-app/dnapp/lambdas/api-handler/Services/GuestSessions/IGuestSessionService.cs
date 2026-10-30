@@ -19,5 +19,6 @@ public interface IGuestSessionService
     Task<GetGuestSessionResponse> GetGuestSessionInfoAsync(string guestSessionId);
     Task<GroupBillResponse> GetGroupBillAsync(string userId, string groupReservationId);
     Task<GuestBillResponse> GetGuestBillAsync(string guestSessionId);
+    Task<IEnumerable<MergedDishResponse>> SubmitGroupPreOrderAsync(string userId, string groupReservationId, string reservationId);
 }
 
