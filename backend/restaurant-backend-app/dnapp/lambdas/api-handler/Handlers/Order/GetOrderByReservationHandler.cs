@@ -5,6 +5,7 @@ using APIHandler.Mappers;
 using APIHandler.Models.Users;
 using APIHandler.Services.Dishes;
 using APIHandler.Services.Orders;
+using APIHandler.Services.Reservations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,11 +16,13 @@ public class GetOrderByReservationHandler : IApiRequestHandler
 {
     private readonly IDishService _dishService;
     private readonly IOrderService _orderService;
+    private readonly IReservationService _reservationService;
 
-    public GetOrderByReservationHandler(IDishService dishService, IOrderService orderService)
+    public GetOrderByReservationHandler(IDishService dishService, IOrderService orderService, IReservationService reservationService)
     {
         _dishService = dishService ?? throw new ArgumentNullException(nameof(dishService));
         _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+        _reservationService = reservationService ?? throw new ArgumentNullException(nameof(reservationService));
     }
 
     public async Task<APIGatewayProxyResponse> HandleRequest(APIGatewayProxyRequest request, ILambdaContext context)
@@ -44,9 +47,17 @@ public class GetOrderByReservationHandler : IApiRequestHandler
         var isWaiter = claims.TryGetValue("cognito:groups", out var groups) && groups.Contains(Roles.Waiter.ToString());
         var isOrderCustomer = claims.TryGetValue("sub", out var sub) && sub == order.CustomerId;
 
-        if (!isWaiter && !isOrderCustomer)
+        // A waiter may only view orders for reservations assigned to them, not any order in the system.
+        var isAssignedWaiter = false;
+        if (isWaiter && sub is not null)
         {
-            return ResponseBuilder.CreateErrorResponse(403, "Forbidden: Only waiters or the customer can access this order.", context.Logger);
+            var reservation = await _reservationService.GetReservationByIdAsync(reservationId);
+            isAssignedWaiter = reservation is not null && reservation.WaiterId == sub;
+        }
+
+        if (!isAssignedWaiter && !isOrderCustomer)
+        {
+            return ResponseBuilder.CreateErrorResponse(403, "Forbidden: Only the assigned waiter or the customer can access this order.", context.Logger);
         }
 
         var dishIds = order.Dishes.Select(d => d.DishId).ToList();

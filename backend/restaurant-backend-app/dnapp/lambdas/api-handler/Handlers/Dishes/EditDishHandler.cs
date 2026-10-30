@@ -1,4 +1,4 @@
-﻿using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using APIHandler.Constants;
 using APIHandler.Exceptions;
@@ -18,6 +18,11 @@ public class EditDishHandler(IDishService dishService, S3ImageService s3ImageSer
 
     public async Task<APIGatewayProxyResponse> HandleRequest(APIGatewayProxyRequest request, ILambdaContext context)
     {
+        if (!RoleHelper.IsWaiter(request))
+        {
+            return ResponseBuilder.CreateErrorResponse(403, "Forbidden", context.Logger);
+        }
+
         if (request.PathParameters == null || !request.PathParameters.TryGetValue("id", out var dishId))
             return ResponseBuilder.CreateErrorResponse(400, "Missing 'id' in path parameters.", context.Logger);
 

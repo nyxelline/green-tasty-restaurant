@@ -1,4 +1,4 @@
-﻿using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using APIHandler.Constants.Reports;
 using APIHandler.Entities.Reports;
@@ -26,6 +26,11 @@ public class GenerateReportHandler : IApiRequestHandler
 
     public async Task<APIGatewayProxyResponse> HandleRequest(APIGatewayProxyRequest request, ILambdaContext context)
     {
+        if (!RoleHelper.IsWaiter(request))
+        {
+            return ResponseBuilder.CreateErrorResponse(403, "Forbidden", context.Logger);
+        }
+
         var (success, parsedParams, errorResponse) = TryParseQueryParameters(request.QueryStringParameters);
 
         if (!success)

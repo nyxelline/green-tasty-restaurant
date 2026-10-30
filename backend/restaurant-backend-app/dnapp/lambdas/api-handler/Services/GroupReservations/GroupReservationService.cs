@@ -98,7 +98,11 @@ public class GroupReservationService(
         GroupReservation? group = await groupReservationRepository.GetByReservationIdAsync(reservationId);
         if (group is not null)
         {
-            if (group.Status == GroupReservationStatus.Closed)
+            // Raising the guest count is exactly how an owner says "I want to invite more
+            // people" — including after the group's pre-order was already submitted. Without
+            // reopening here too, a Submitted group stays locked (no invite link, no new joins)
+            // even though the owner just asked for more guest slots.
+            if (group.Status == GroupReservationStatus.Closed || group.Status == GroupReservationStatus.Submitted)
             {
                 group.Status = GroupReservationStatus.Open;
                 await groupReservationRepository.SaveGroupReservationAsync(group);

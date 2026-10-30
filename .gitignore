@@ -45,3 +45,5 @@ publish/
 
 # Personal ops notes with real account/infra details — not for the repo
 MOVE-TO-EU-NORTH-1.md
+
+infra/terraform/backend.local.hcl

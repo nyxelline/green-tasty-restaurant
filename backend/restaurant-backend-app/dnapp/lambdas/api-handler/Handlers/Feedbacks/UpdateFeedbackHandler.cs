@@ -5,6 +5,7 @@ using APIHandler.Helpers;
 using APIHandler.Models.Feedbacks;
 using APIHandler.Services.Feedbacks;
 using System;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -31,10 +32,25 @@ public class UpdateFeedbackHandler : IApiRequestHandler
             return ResponseBuilder.CreateErrorResponse(400, errorMessage!, context.Logger);
         }
 
-        if (feedbackRequest!.UserId is not null && feedbackRequest.UserId != userId!)
+        // Ownership is checked against the feedback actually stored for this reservation/type,
+        // never against a UserId the client could simply omit or forge in the request body.
+        var existingFeedback = await _feedbackService.GetFeedbackForReservationAsync(feedbackRequest!.ReservationId);
+        var ownedFeedback = existingFeedback
+            .Where(f => f.Type == feedbackRequest.Type)
+            .OrderByDescending(f => f.CreatedAt)
+            .FirstOrDefault();
+
+        if (ownedFeedback is null)
         {
-            return ResponseBuilder.CreateErrorResponse(403, "User ID in request does not match authenticated user.", context.Logger);
+            return ResponseBuilder.CreateErrorResponse(404, "No feedback of this type found for the reservation.", context.Logger);
         }
+
+        if (ownedFeedback.UserId != userId)
+        {
+            return ResponseBuilder.CreateErrorResponse(403, "You can only edit your own feedback.", context.Logger);
+        }
+
+        feedbackRequest.UserId = userId;
 
         try
         {

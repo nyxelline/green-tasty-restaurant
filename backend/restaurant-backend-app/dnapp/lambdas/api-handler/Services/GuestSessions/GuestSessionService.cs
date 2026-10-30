@@ -1,4 +1,4 @@
-﻿using Amazon.CognitoIdentityProvider.Model;
+using Amazon.CognitoIdentityProvider.Model;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using APIHandler.Constants;
@@ -62,12 +62,24 @@ public class GuestSessionService(
 
         await EnsureGuestCounterInitializedAsync(group.GroupReservationId);
 
+        // Two guests can legitimately share a first name, and the same person may rejoin under
+        // the same name after losing their session — so a collision is disambiguated with a
+        // suffix rather than rejected outright. Without this, the owner's guest list (and the
+        // "added to X's table" message) can't tell two same-named guests apart. The owner's
+        // display name is checked too: her own GuestSession record is tagged "Owner", not her
+        // real name, so without this a guest naming themselves after the owner would collide
+        // unnoticed in the participants list and bill.
+        string? ownerDisplayName = string.IsNullOrWhiteSpace(reservation.CustomerId)
+            ? null
+            : await userService.GetUserName(reservation.CustomerId);
+        string guestName = await ResolveUniqueGuestNameAsync(group.GroupReservationId, request.GuestName, ownerDisplayName);
+
         int maxJoinedGuests = reservation.GuestCount - 1;
         byte[] tokenBytes = RandomNumberGenerator.GetBytes(32);
         var session = new GuestSession
         {
             Id = Guid.NewGuid().ToString(),
-            GuestName = request.GuestName,
+            GuestName = guestName,
             GroupReservationId = group.GroupReservationId,
             SessionTokenHash = Convert.ToBase64String(SHA256.HashData(tokenBytes)),
             Dishes = [],
@@ -514,6 +526,30 @@ public class GuestSessionService(
         GroupReservation? group = await groupReservationRepository.GetGroupReservationByIdAsync(groupReservationId);
         ValidateGroupReservation(group);
         return group;
+    }
+
+    private async Task<string> ResolveUniqueGuestNameAsync(string groupReservationId, string requestedName, string? ownerDisplayName = null)
+    {
+        var existingSessions = await guestSessionRepository.GetAllByGroupReservationIdAsync(groupReservationId);
+        var existingNames = (existingSessions ?? new List<GuestSession>())
+            .Select(s => s.GuestName)
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (!string.IsNullOrWhiteSpace(ownerDisplayName))
+            existingNames.Add(ownerDisplayName);
+
+        if (!existingNames.Contains(requestedName))
+            return requestedName;
+
+        for (int suffix = 2; suffix < 100; suffix++)
+        {
+            var candidate = $"{requestedName} ({suffix})";
+            if (!existingNames.Contains(candidate))
+                return candidate;
+        }
+
+        return $"{requestedName} ({Guid.NewGuid().ToString("N")[..4]})";
     }
 
     private async Task<int> GetCurrentParticipantCountAsync(string groupReservationId)

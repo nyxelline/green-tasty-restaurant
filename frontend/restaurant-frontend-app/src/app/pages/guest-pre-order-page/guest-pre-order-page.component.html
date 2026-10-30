@@ -30,14 +30,8 @@
 </div>
 
 <div class="menu-container">
-    <div class="page-navigation">
-        <a routerLink="/main">Main page</a>
-        <span>›</span>
-        <span class="page-navigation__location">Menu</span>
-    </div>
-
     <section class="hero-section">
-        <app-main-cover-image src="assets/img/main-page-cover.webp" alt="Fresh restaurant dishes" />
+        <app-main-cover-image [darkened]="true" src="assets/img/main-page-cover.webp" alt="Fresh restaurant dishes" />
         <div class="hero-text-block">
             <p class="hero-subtitle">Green &amp; Tasty Restaurants</p>
             <h1 class="hero-title">Menu</h1>

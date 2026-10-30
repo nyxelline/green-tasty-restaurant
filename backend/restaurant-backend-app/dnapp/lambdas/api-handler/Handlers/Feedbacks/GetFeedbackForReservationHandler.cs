@@ -38,10 +38,13 @@ public class GetFeedbackForReservationHandler : IApiRequestHandler
                 : "Anonymous User";
         }
 
+        // Picking the most recent item of each type rather than SingleOrDefault means a stray
+        // duplicate row (e.g. from a double-submitted request) never turns into a permanent 500
+        // for everyone viewing this reservation's feedback.
         var responseBody = new
         {
-            service = feedbackItems.SingleOrDefault(f => f.Type == FeedbackType.Service),
-            cuisineExperience = feedbackItems.SingleOrDefault(f => f.Type == FeedbackType.CuisineExperience)
+            service = feedbackItems.Where(f => f.Type == FeedbackType.Service).OrderByDescending(f => f.CreatedAt).FirstOrDefault(),
+            cuisineExperience = feedbackItems.Where(f => f.Type == FeedbackType.CuisineExperience).OrderByDescending(f => f.CreatedAt).FirstOrDefault()
         };
 
         return ResponseBuilder.CreateSuccessResponse(responseBody);

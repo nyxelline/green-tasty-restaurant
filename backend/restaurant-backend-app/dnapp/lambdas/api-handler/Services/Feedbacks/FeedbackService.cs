@@ -35,6 +35,16 @@ public class FeedbackService : IFeedbackService
             throw new ValidationException($"Rating ({request.Rating}) must be between 1 and 5.");
         }
 
+        // CreatedAt is the DynamoDB range key, so a second write for the same reservation+type
+        // would normally land as a brand-new row instead of overwriting the first (e.g. a
+        // double-submitted request slipping past the handler's existence check). Reusing the
+        // existing row's CreatedAt here turns that into an overwrite, so a reservation can never
+        // end up with two feedback rows of the same type.
+        var existing = (await GetFeedbackForReservationAsync(request.ReservationId))
+            .Where(f => f.Type == request.Type)
+            .OrderByDescending(f => f.CreatedAt)
+            .FirstOrDefault();
+
         var feedback = new Feedback
         {
             ReservationId = request.ReservationId,
@@ -42,7 +52,7 @@ public class FeedbackService : IFeedbackService
             UserId = request.UserId,
             Comment = request.Comment,
             Rating = request.Rating,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = existing?.CreatedAt ?? DateTime.UtcNow,
             Type = request.Type
         };
 
@@ -96,7 +106,10 @@ public class FeedbackService : IFeedbackService
             throw new ValidationException($"No feedback found for reservation '{request.ReservationId}'.");
         }
 
-        var feedbackToUpdate = existingFeedback.SingleOrDefault(f => f.Type == request.Type);
+        var feedbackToUpdate = existingFeedback
+            .Where(f => f.Type == request.Type)
+            .OrderByDescending(f => f.CreatedAt)
+            .FirstOrDefault();
         if (feedbackToUpdate is null)
         {
             throw new ValidationException($"No feedback of type '{request.Type}' found for reservation '{request.ReservationId}'.");

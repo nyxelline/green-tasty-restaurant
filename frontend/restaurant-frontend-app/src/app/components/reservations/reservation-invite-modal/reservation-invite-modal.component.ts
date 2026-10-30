@@ -11,7 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { Params, Router } from '@angular/router';
 import { Reservation } from '@app/models/reservations/reservation.model';
 import { GuestInviteService } from '@app/services/reservation/guest-invite.service';
 import { ToastService } from '@app/services/toast/toast.service';
@@ -106,6 +106,27 @@ export class ReservationInviteModalComponent implements OnInit {
 
   onMakePreOrder(): void {
     this.closed.emit();
-    this.router.navigate(['/menu']);
+
+    // The menu page reads the target reservation from query params (preOrder/reservationId) —
+    // without them it has nothing to attach the order to and refuses to let you pick dishes.
+    // Navigating here with no params at all meant pre-ordering right after booking silently
+    // failed, while going through the reservation list (which does pass these params) worked.
+    const reservation = this.reservation();
+    const startTime = new Date(reservation.startTime);
+    const endTime = new Date(reservation.endTime);
+
+    const queryParams: Params = {
+      preOrder: 'true',
+      reservationId: reservation.id,
+      reservationLabel: [
+        reservation.locationAddress,
+        startTime.toDateString(),
+        `${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()}`,
+      ]
+        .filter(Boolean)
+        .join(', '),
+    };
+
+    this.router.navigate(['/menu'], { queryParams });
   }
 }

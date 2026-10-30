@@ -47,6 +47,15 @@ public class UpdateReservationStatusHandler : IApiRequestHandler
             return response!;
         }
 
+        var callerId = UserContextHelper.GetAuthenticatedUserId(request);
+        if (callerId is null || reservation!.WaiterId != callerId)
+        {
+            return ResponseBuilder.CreateErrorResponse(
+                403,
+                "You can only update the status of reservations assigned to you.",
+                context.Logger);
+        }
+
         if (updateRequest.NewStatus is ReservationStatus.Reserved)
         {
             return ResponseBuilder.CreateErrorResponse(

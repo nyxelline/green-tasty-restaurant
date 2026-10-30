@@ -31,8 +31,17 @@ public class CreateFeedbackHandler : IApiRequestHandler
             return ResponseBuilder.CreateErrorResponse(400, errorMessage!, context.Logger);
         }
 
-        Roles? userRole = await GetUserRoleAsync(feedbackRequest!.UserId);
-        if (userRole is not null or Roles.Customer)
+        var callerId = UserContextHelper.GetAuthenticatedUserId(request);
+        if (callerId is null)
+        {
+            return ResponseBuilder.CreateErrorResponse(401, "User is not authenticated.", context.Logger);
+        }
+
+        // Authorship is always taken from the authenticated caller, never trusted from the request body.
+        feedbackRequest!.UserId = callerId;
+
+        Roles? userRole = await GetUserRoleAsync(callerId);
+        if (userRole != Roles.Customer)
         {
             return ResponseBuilder.CreateErrorResponse(403, "Only customers can create feedback.", context.Logger);
         }

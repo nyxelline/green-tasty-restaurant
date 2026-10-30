@@ -1,4 +1,4 @@
-﻿using Amazon.Lambda.Core;
+using Amazon.Lambda.Core;
 using APIHandler.Constants;
 using APIHandler.Constants.Dishes;
 using APIHandler.Constants.Orders;
@@ -48,13 +48,9 @@ public class OrderService : IOrderService
         EnsurePreOrderEditable(reservation.StartTime);
 
         var order = await LoadOrderByReservationIdAsync(reservationId);
-        bool shouldSubmit = ConfirmDishInOrder(order, dishId);
+        ConfirmDishInOrder(order, dishId);
 
-        if (shouldSubmit)
-        {
-            order.Status = OrderStatus.Submitted;
-            logger.Log($"Order {order.OrderId} marked as Submitted (all dishes confirmed/canceled and at least one confirmed).");
-        }
+        ApplyFinalOrderStatus(order);
 
         await _orderRepository.SaveOrderAsync(order);
         logger.Log($"Confirmed dish {dishId} in order {order.OrderId}.");
@@ -69,13 +65,9 @@ public class OrderService : IOrderService
 
         var order = await LoadOrderByReservationIdAsync(reservationId);
 
-        bool shouldSubmit = CancelDishInOrder(order, dishId);
+        CancelDishInOrder(order, dishId);
 
-        if (shouldSubmit)
-        {
-            order.Status = OrderStatus.Submitted;
-            logger.Log($"Order {order.OrderId} marked as Submitted (all dishes confirmed/canceled and at least one confirmed).");
-        }
+        ApplyFinalOrderStatus(order);
 
         await _orderRepository.SaveOrderAsync(order);
         logger.Log($"Canceled dish {dishId} in order {order.OrderId}.");
@@ -359,28 +351,27 @@ public class OrderService : IOrderService
             throw new ValidationException($"Customer pre-orders are only available for Reserved reservations. Current status: '{reservation.Status}'.");
     }
 
-    private static bool ConfirmDishInOrder(Order order, string dishId)
+    private static void ConfirmDishInOrder(Order order, string dishId)
     {
         var dish = LoadPendingDish(order, dishId);
 
         dish.State = OrderItemState.Confirmed;
-
-        return ShouldMarkOrderAsSubmitted(order);
     }
 
-    private static bool CancelDishInOrder(Order order, string dishId)
+    private static void CancelDishInOrder(Order order, string dishId)
     {
         var dish = LoadPendingDish(order, dishId);
 
         dish.State = OrderItemState.Canceled;
-
-        return ShouldMarkOrderAsSubmitted(order);
     }
 
     private static OrderItem LoadPendingDish(Order order, string dishId)
     {
-        if (order.Status is OrderStatus.Submitted or OrderStatus.Cancelled)
-            throw new ValidationException($"Order '{order.OrderId}' can no longer be changed.");
+        // A waiter may only confirm/cancel dishes once the customer has actually submitted the
+        // pre-order. Previously only Submitted/Cancelled were blocked, so a waiter could reach
+        // in and confirm dishes on a still-editable Created draft the customer hadn't sent yet.
+        if (order.Status != OrderStatus.SubmittedByCustomer)
+            throw new ValidationException($"Order '{order.OrderId}' is not awaiting waiter confirmation (status: '{order.Status}').");
 
         var dish = order.Dishes.FirstOrDefault(d => d.DishId == dishId)
             ?? throw new DishNotFoundException($"Dish {dishId} not found in order {order.OrderId}.");
@@ -433,11 +424,18 @@ public class OrderService : IOrderService
         return orderItems.Count > 0;
     }
 
-    private static bool ShouldMarkOrderAsSubmitted(Order order)
+    // Once every dish has been either confirmed or canceled, the order must leave
+    // SubmittedByCustomer one way or the other: Submitted if at least one dish survived,
+    // Cancelled if the waiter canceled every single dish. Previously only the "at least one
+    // confirmed" case was handled, so an order where everything got canceled stayed stuck in
+    // SubmittedByCustomer forever.
+    private static void ApplyFinalOrderStatus(Order order)
     {
-        bool anyConfirmed = order.Dishes.Any(d => d.State == OrderItemState.Confirmed);
         bool anyPending = order.Dishes.Any(d => d.State == OrderItemState.Pending);
+        if (anyPending)
+            return;
 
-        return anyConfirmed && !anyPending;
+        bool anyConfirmed = order.Dishes.Any(d => d.State == OrderItemState.Confirmed);
+        order.Status = anyConfirmed ? OrderStatus.Submitted : OrderStatus.Cancelled;
     }
 }

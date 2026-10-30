@@ -1,4 +1,4 @@
-﻿using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using APIHandler.Exceptions;
 using APIHandler.Helpers;
@@ -11,6 +11,11 @@ public class DeleteDishHandler(IDishService dishService) : IApiRequestHandler
 {
     public async Task<APIGatewayProxyResponse> HandleRequest(APIGatewayProxyRequest request, ILambdaContext context)
     {
+        if (!RoleHelper.IsWaiter(request))
+        {
+            return ResponseBuilder.CreateErrorResponse(403, "Forbidden", context.Logger);
+        }
+
         if (request.PathParameters == null || !request.PathParameters.TryGetValue("id", out var dishId))
             return ResponseBuilder.CreateErrorResponse(400, "Missing 'id' in path parameters.", context.Logger);
 

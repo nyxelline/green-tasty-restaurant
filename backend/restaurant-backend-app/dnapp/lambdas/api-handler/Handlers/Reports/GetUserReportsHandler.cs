@@ -1,4 +1,4 @@
-﻿using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using APIHandler.Helpers;
 using APIHandler.Services.Reports.Interfaces;
@@ -18,6 +18,11 @@ public class GetUserReportsHandler : IApiRequestHandler
 
     public async Task<APIGatewayProxyResponse> HandleRequest(APIGatewayProxyRequest request, ILambdaContext context)
     {
+        if (!RoleHelper.IsWaiter(request))
+        {
+            return ResponseBuilder.CreateErrorResponse(403, "Forbidden", context.Logger);
+        }
+
         var userId = UserContextHelper.GetAuthenticatedUserId(request);
         if (userId is null)
         {

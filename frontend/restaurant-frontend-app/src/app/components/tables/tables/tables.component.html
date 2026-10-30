@@ -130,6 +130,7 @@
                 [table]="table"
                 [location]="getLocationName(table)"
                 [date]="lastAppliedFilter.date!"
+                [centerTime]="lastAppliedFilter.time"
                 (timeSlotSelected)="onTimeSlotsClick(table, $event)"
               />
             }

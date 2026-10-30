@@ -1,0 +1,21 @@
+{
+  "Tables": [
+    { "PutRequest": { "Item": { "id": {"S": "1df1155c-9795-4727-97d2-eab7a75ed15a"}, "locationId": {"S": "7d598da3-0887-4a04-a3a1-fe26d8a4a4f2"}, "capacity": {"N": "2"}, "tableNumber": {"N": "1"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "09bb4a8b-0f0e-49c8-b5bf-2502818b7507"}, "locationId": {"S": "7d598da3-0887-4a04-a3a1-fe26d8a4a4f2"}, "capacity": {"N": "2"}, "tableNumber": {"N": "2"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "6f8c73ac-9691-4f3c-a9fd-777e3462a14e"}, "locationId": {"S": "7d598da3-0887-4a04-a3a1-fe26d8a4a4f2"}, "capacity": {"N": "4"}, "tableNumber": {"N": "3"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "61d2aa76-a55e-4198-9e97-410b5f0b9f3f"}, "locationId": {"S": "7d598da3-0887-4a04-a3a1-fe26d8a4a4f2"}, "capacity": {"N": "4"}, "tableNumber": {"N": "4"} } } },
+
+    { "PutRequest": { "Item": { "id": {"S": "33fca31d-9879-4dd3-831d-760e3ebdb9de"}, "locationId": {"S": "2de08053-9bec-4662-bf56-2ccb70aeeb78"}, "capacity": {"N": "2"}, "tableNumber": {"N": "1"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "12c953ad-40ee-4be6-809e-e72ffd038293"}, "locationId": {"S": "2de08053-9bec-4662-bf56-2ccb70aeeb78"}, "capacity": {"N": "2"}, "tableNumber": {"N": "2"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "5fbd6875-8228-4fef-b092-b8d6edd711d6"}, "locationId": {"S": "2de08053-9bec-4662-bf56-2ccb70aeeb78"}, "capacity": {"N": "4"}, "tableNumber": {"N": "3"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "72e1ee69-9cd4-4970-96cc-33b75dc81dd3"}, "locationId": {"S": "2de08053-9bec-4662-bf56-2ccb70aeeb78"}, "capacity": {"N": "4"}, "tableNumber": {"N": "4"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "aee6bc67-73c8-42fa-bff1-a32f931515c6"}, "locationId": {"S": "2de08053-9bec-4662-bf56-2ccb70aeeb78"}, "capacity": {"N": "6"}, "tableNumber": {"N": "5"} } } },
+
+    { "PutRequest": { "Item": { "id": {"S": "6807d913-528d-4bc8-86c5-881e2ae42d1b"}, "locationId": {"S": "98c4acc4-ca8b-4416-be9d-ef40f1e73e0a"}, "capacity": {"N": "2"}, "tableNumber": {"N": "1"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "e4e3e423-b2ee-48aa-9b50-361eeca92b20"}, "locationId": {"S": "98c4acc4-ca8b-4416-be9d-ef40f1e73e0a"}, "capacity": {"N": "2"}, "tableNumber": {"N": "2"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "cad068be-fc03-4436-bb46-876265a94d59"}, "locationId": {"S": "98c4acc4-ca8b-4416-be9d-ef40f1e73e0a"}, "capacity": {"N": "4"}, "tableNumber": {"N": "3"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "6cfc9c7f-e77e-45a3-a685-96f079dc65fe"}, "locationId": {"S": "98c4acc4-ca8b-4416-be9d-ef40f1e73e0a"}, "capacity": {"N": "4"}, "tableNumber": {"N": "4"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "c749cd19-3163-418c-ba77-a423ab41f673"}, "locationId": {"S": "98c4acc4-ca8b-4416-be9d-ef40f1e73e0a"}, "capacity": {"N": "6"}, "tableNumber": {"N": "5"} } } },
+    { "PutRequest": { "Item": { "id": {"S": "c7fa94cf-b56b-4fc0-b049-bc3fd8b15b8d"}, "locationId": {"S": "98c4acc4-ca8b-4416-be9d-ef40f1e73e0a"}, "capacity": {"N": "8"}, "tableNumber": {"N": "6"} } } }
+  ]
+}
