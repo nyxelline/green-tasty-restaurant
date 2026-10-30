@@ -152,6 +152,19 @@ input {
     border-color: color.$red-400;
     color: color.$neutral-900;
   }
+
+  // Neutralize the browser's native autofill highlight (e.g. Chrome's blue/lavender
+  // tint on the email field when it offers a saved address) so autofilled inputs
+  // keep matching the app's own white/neutral input styling instead of looking broken.
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px color.$neutral-0 inset !important;
+    -webkit-text-fill-color: color.$neutral-900 !important;
+    caret-color: color.$neutral-900;
+    transition: background-color 5000s ease-in-out 0s;
+  }
 }
 
 .email-input {

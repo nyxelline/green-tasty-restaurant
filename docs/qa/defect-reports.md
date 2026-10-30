@@ -140,6 +140,20 @@ All defects below were found during manual testing of the deployed build and hav
 
 ---
 
+**ID: DR-10** – "Most Popular Dishes" / browsing menu mixes all locations together with no dedup, making distinct dishes look duplicated
+**Env:** P_PRD | **Priority:** Medium | **Severity:** Minor | **Status:** Open
+
+**Pre-conditions:** More than one location has a dish with the same name (e.g. "Margherita Pizza" exists at both 14 Baratashvili Street and 48 Rustaveli Avenue).
+
+**Steps:**
+1. Open the main page or the Menu page while browsing (no reservation/location context selected).
+2. Look at "Most Popular Dishes" / the dish grid.
+
+**Actual result:** The same dish name appears twice (e.g. "Margherita Pizza" and "Grilled Salmon" each shown twice) with no location label to tell them apart, which reads as a duplicate-rendering bug. Conversely, because the list is an unfiltered dump of every location's dishes rather than a true top-N "popular" ranking, dishes a user expects to see can appear to be missing depending on sort order.
+**Expected result:** Either scope the list to one location (consistent with the rest of the app, which is location-scoped everywhere else), or show a location label per dish and genuinely rank/dedupe by popularity instead of returning a raw table scan.
+
+**Root cause:** `GetPopularDishesHandler.cs` does `_dbContext.ScanAsync<Dish>(new List<ScanCondition>(), _dishesConfig)` — an unfiltered scan of the entire Dishes table across all locations, mapped straight to the response with no location filter, no popularity ranking, and no de-duplication by name.
+
 ## Known Issues (not fixed / out of scope for this submission)
 
 These were observed during manual testing but are either unimplemented features or low-severity UX gaps rather than regressions in existing functionality.
