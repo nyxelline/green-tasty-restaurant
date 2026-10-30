@@ -18,6 +18,7 @@ import {
 import { PlaceOrderWaiterComponent } from '@app/components/place-order-waiter/place-order-waiter.component';
 import { Roles } from '@app/shared/constants/roles';
 import { CustomSelectComponent } from '@app/shared/custom-components/custom-select/custom-select.component';
+import { ModalComponent } from '@app/shared/custom-components/modal/modal.component';
 
 const MIN_GUESTS_FOR_GROUP_ORDER = 2;
 
@@ -40,6 +41,7 @@ interface WaiterPreOrderNavigationData {
     DatePipe,
     CustomSelectComponent,
     PlaceOrderWaiterComponent,
+    ModalComponent,
   ],
   templateUrl: './card-reservation.component.html',
   styleUrl: './card-reservation.component.scss',
@@ -72,6 +74,20 @@ export class CardReservationComponent {
   }>();
 
   readonly cancelReservation = output<string>();
+  readonly showCancelConfirm = signal(false);
+
+  requestCancel(): void {
+    this.showCancelConfirm.set(true);
+  }
+
+  dismissCancel(): void {
+    this.showCancelConfirm.set(false);
+  }
+
+  confirmCancel(): void {
+    this.showCancelConfirm.set(false);
+    this.cancelReservation.emit(this.r().id);
+  }
 
   readonly editReservation =
     output<ReservationCustomer>();

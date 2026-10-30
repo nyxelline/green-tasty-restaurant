@@ -128,7 +128,7 @@
         <button
           type="button"
           class="button button--tertiary button--large"
-          (click)="cancelReservation.emit(r().id)"
+          (click)="requestCancel()"
         >
           Cancel
         </button>
@@ -190,7 +190,7 @@
         <button
           type="button"
           class="button button--tertiary button--large"
-          (click)="cancelReservation.emit(r().id)"
+          (click)="requestCancel()"
         >
           Cancel
         </button>
@@ -306,4 +306,19 @@
     (closeModal)="closeWaiterOrderModal()"
     (placeOrder)="onWaiterOrderCreated($event)"
   />
+}
+
+@if (showCancelConfirm()) {
+  <app-modal title="Cancel this reservation?" width="400px" (closed)="dismissCancel()">
+    <p>This will cancel your reservation for {{ r().locationAddress }}. This can't be undone.</p>
+
+    <div modal-actions class="actions">
+      <button type="button" class="button button--secondary button--large" (click)="dismissCancel()">
+        Keep reservation
+      </button>
+      <button type="button" class="button button--tertiary button--large" (click)="confirmCancel()">
+        Cancel reservation
+      </button>
+    </div>
+  </app-modal>
 }

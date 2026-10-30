@@ -7,6 +7,10 @@
         </div>
     }
 
+    @if (resetSuccessMessage()) {
+        <div class="banner-success">{{ resetSuccessMessage() }}</div>
+    }
+
     <label class="field">
         <div class="label">Email</div>
         <input
@@ -61,7 +65,7 @@
             </div>
         }
 
-        <a class="forgot-link" href="#" (click)="$event.preventDefault()">Forgot password?</a>
+        <a class="forgot-link" href="#" (click)="$event.preventDefault(); openForgotPassword()">Forgot password?</a>
     </label>
 
     <app-custom-button class="submit" type="submit" fullWidth [disabled]="loginForm.invalid || isLoading()">
@@ -73,3 +77,10 @@
         <a class="link" routerLink="/signup">Create an Account</a>
     </div>
 </form>
+
+@if (showForgotPassword()) {
+    <app-forgot-password-modal
+        (closed)="closeForgotPassword()"
+        (passwordReset)="onPasswordReset($event)"
+    />
+}
