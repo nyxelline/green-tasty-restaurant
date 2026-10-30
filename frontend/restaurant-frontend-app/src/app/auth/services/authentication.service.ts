@@ -69,6 +69,42 @@ export class AuthenticationService {
     });
     return await this.resolveRegisterResponse(response);
   }
+  async forgotPassword(email: string) {
+    const body = { email };
+    const url = this.baseUrl + '/forgot-password';
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    return await this.resolveRegisterResponse(response);
+  }
+  async confirmForgotPassword(
+    email: string,
+    confirmationCode: string,
+    newPassword: string,
+    confirmNewPassword: string
+  ) {
+    const body = {
+      email,
+      confirmationCode,
+      newPassword,
+      confirmNewPassword,
+    };
+    const url = this.baseUrl + '/reset-password';
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    return await this.resolveRegisterResponse(response);
+  }
   signOut() {
     localStorage.removeItem('auth');
     localStorage.removeItem('user');

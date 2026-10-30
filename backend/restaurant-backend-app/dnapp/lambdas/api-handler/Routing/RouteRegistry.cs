@@ -120,6 +120,8 @@ public static class RouteRegistry
         List<RouteHandler> GetAuthAndUserRoutes() => [
             new RouteHandler(new Route(HttpMethods.POST, "/register"), ActivatorUtilities.CreateInstance<RegistrationHandler>(provider)),
             new RouteHandler(new Route(HttpMethods.POST, "/signin"), ActivatorUtilities.CreateInstance<SignInHandler>(provider)),
+            new RouteHandler(new Route(HttpMethods.POST, "/forgot-password"), ActivatorUtilities.CreateInstance<ForgotPasswordHandler>(provider)),
+            new RouteHandler(new Route(HttpMethods.POST, "/reset-password"), ActivatorUtilities.CreateInstance<ConfirmForgotPasswordHandler>(provider)),
             new RouteHandler(new Route(HttpMethods.GET, "/me"), ActivatorUtilities.CreateInstance<GetAuthorizedUserHandler>(provider)),
             new RouteHandler(new Route(HttpMethods.PUT, "/me"), ActivatorUtilities.CreateInstance<EditUserHandler>(provider)),
             new RouteHandler(new Route(HttpMethods.PUT, "/me/change-password"), ActivatorUtilities.CreateInstance<ChangeOwnPasswordHandler>(provider)),

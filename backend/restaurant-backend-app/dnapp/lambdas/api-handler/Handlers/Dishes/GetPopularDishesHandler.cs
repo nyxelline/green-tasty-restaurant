@@ -7,6 +7,7 @@ using APIHandler.Helpers;
 using APIHandler.Mappers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace APIHandler.Handlers.Dishes;
@@ -33,7 +34,14 @@ public class GetPopularDishesHandler : IApiRequestHandler
             .ScanAsync<Dish>(new List<ScanCondition>(), _dishesConfig)
             .GetRemainingAsync();
 
-        var dishesListResponse = dishes.ConvertAll(DishMapper.ToDishListResponse);
+        // The scan spans every location, so the same dish name can appear once per
+        // location. Browsing mode has no location context to scope by, so dedupe by
+        // name instead of showing what looks like duplicate entries.
+        var uniqueDishes = dishes
+            .GroupBy(dish => dish.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First());
+
+        var dishesListResponse = uniqueDishes.Select(DishMapper.ToDishListResponse).ToList();
 
         return ResponseBuilder.CreateSuccessResponse(dishesListResponse);
     }

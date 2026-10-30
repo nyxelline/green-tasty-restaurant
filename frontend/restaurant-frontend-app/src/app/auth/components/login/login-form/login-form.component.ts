@@ -8,11 +8,12 @@ import { first } from 'rxjs/operators';
 import { AuthenticationService } from '@app/auth/services/authentication.service';
 import { LoginDraftService } from '@app/auth/services/login-draft.service';
 import { CustomButtonComponent } from '@app/shared/custom-components/custom-button/custom-button.component';
+import { ForgotPasswordModalComponent } from '@app/auth/components/forgot-password/forgot-password-modal/forgot-password-modal.component';
 
 @Component({
     selector: 'app-login-form',
     standalone: true,
-    imports: [ReactiveFormsModule, RouterModule, CustomButtonComponent],
+    imports: [ReactiveFormsModule, RouterModule, CustomButtonComponent, ForgotPasswordModalComponent],
     templateUrl: './login-form.component.html',
     styleUrl: './login-form.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,6 +30,8 @@ export class LoginFormComponent {
     // UI state as signals
     readonly showPassword = signal(false);
     readonly isLoading = signal(false);
+    readonly showForgotPassword = signal(false);
+    readonly resetSuccessMessage = signal<string | null>(null);
 
     // API/UI error state
     readonly unsuccessfulLogin = signal(false);
@@ -73,6 +76,21 @@ export class LoginFormComponent {
 
     togglePassword() {
         this.showPassword.update((v) => !v);
+    }
+
+    openForgotPassword(): void {
+        this.resetSuccessMessage.set(null);
+        this.showForgotPassword.set(true);
+    }
+
+    closeForgotPassword(): void {
+        this.showForgotPassword.set(false);
+    }
+
+    onPasswordReset(email: string): void {
+        this.showForgotPassword.set(false);
+        this.loginForm.patchValue({ email });
+        this.resetSuccessMessage.set('Your password has been reset. You can sign in now.');
     }
 
     async onSubmit(): Promise<void> {

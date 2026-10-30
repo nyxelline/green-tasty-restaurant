@@ -20,6 +20,15 @@
     line-height: 40px;
 }
 
+.banner-success {
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: color.$green-100;
+    color: color.$green-600;
+    font-size: 14px;
+    line-height: 20px;
+}
+
 .field { display: flex; flex-direction: column; gap: 6px; }
 
 .label {
