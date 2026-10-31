@@ -111,6 +111,7 @@
   <button
     type="button"
     class="button button--primary button--large submit-btn"
+    [disabled]="order().orderItems.length === 0"
     (click)="submit()"
   >
     Submit Pre-order

@@ -25,13 +25,11 @@
         </div>
       }
 
-      @if (role() === Roles.CUSTOMER) {
-        <span
-          [class]="'status-badge ' + statusView().class"
-        >
-          {{ statusView().label }}
-        </span>
-      }
+      <span
+        [class]="'status-badge ' + statusView().class"
+      >
+        {{ statusView().label }}
+      </span>
     </div>
 
     <div class="details-line">
