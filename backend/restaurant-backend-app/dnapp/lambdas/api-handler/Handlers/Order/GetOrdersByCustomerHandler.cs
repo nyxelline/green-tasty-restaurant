@@ -40,19 +40,27 @@ public class GetOrdersByCustomerHandler : IApiRequestHandler
         var orders = await _orderService.GetOrdersByCustomerIdAsync(userId);
         orders = orders.Where(o => o.Status != OrderStatus.Cancelled).ToList();
 
-        // The cart only shows pre-orders for reservations that haven't finished yet. A
-        // reservation's status isn't a reliable signal here (nothing transitions it to
-        // Completed just because its end time passed), so this compares against the
-        // reservation's real EndTime instead. An order whose reservation can no longer be
-        // found is stale/orphaned data and is hidden too - it can't be "current" if the
-        // reservation it belongs to doesn't exist any more.
+        // The cart shows exactly one pre-order at a time: the one for the customer's
+        // soonest upcoming reservation. A reservation's status isn't a reliable signal for
+        // "upcoming" (nothing transitions it to Completed just because its end time
+        // passed), so this compares against the reservation's real StartTime/EndTime
+        // instead. An order whose reservation can no longer be found, or whose reservation
+        // has already ended, is excluded; among what's left, only the single soonest
+        // reservation's order is kept.
         var reservations = await _reservationRepository.GetReservationsByCustomerIdAsync(userId);
-        var reservationEndTimes = reservations
+        var reservationsById = reservations
             .GroupBy(r => r.Id)
-            .ToDictionary(g => g.Key, g => g.First().EndTime);
+            .ToDictionary(g => g.Key, g => g.First());
+
+        var now = DateTime.UtcNow;
+        var currentReservationId = reservationsById.Values
+            .Where(r => r.EndTime >= now)
+            .OrderBy(r => r.StartTime)
+            .Select(r => r.Id)
+            .FirstOrDefault();
 
         orders = orders
-            .Where(o => reservationEndTimes.TryGetValue(o.ReservationId, out var endTime) && endTime >= DateTime.UtcNow)
+            .Where(o => currentReservationId is not null && o.ReservationId == currentReservationId)
             .ToList();
 
         var dishIds = orders.SelectMany(o => o.Dishes.Select(d => d.DishId)).Distinct().ToList();
