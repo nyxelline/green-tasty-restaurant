@@ -80,6 +80,12 @@ public class RegistrationHandler : IApiRequestHandler
 
     private static bool TryDeserializeRequest(APIGatewayProxyRequest request, out RegistrationRequest registrationRequest)
     {
+        if (string.IsNullOrWhiteSpace(request.Body))
+        {
+            registrationRequest = null;
+            return false;
+        }
+
         try
         {
             registrationRequest = JsonSerializer.Deserialize<RegistrationRequest>(request.Body);
@@ -139,10 +145,10 @@ public class RegistrationHandler : IApiRequestHandler
     private async Task<string?> AddUserToGroupAsync(string email)
     {
         var groupNameStr = Roles.Customer.ToString(); // On registration, users are alwaus added to the Customer group since adding to a waiters groups requires user to be registered first.
-        var groups = await _cognitoClient.ListGroupsAsync(new ListGroupsRequest { UserPoolId = _userPoolId });
 
         try
         {
+            var groups = await _cognitoClient.ListGroupsAsync(new ListGroupsRequest { UserPoolId = _userPoolId });
             if (!groups.Groups.Exists(g => g.GroupName.Equals(groupNameStr, StringComparison.OrdinalIgnoreCase)))
             {
                 await _cognitoClient.CreateGroupAsync(new CreateGroupRequest
