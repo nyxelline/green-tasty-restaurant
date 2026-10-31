@@ -5,11 +5,13 @@ using APIHandler.Constants;
 using APIHandler.Entities;
 using APIHandler.Helpers;
 using APIHandler.Mappers;
+using APIHandler.Models.Orders;
 using APIHandler.Models.Reservations;
 using APIHandler.Models.Users;
 using APIHandler.Repositories.GroupReservations;
 using APIHandler.Repositories.GuestSessions;
 using APIHandler.Repositories.Reservations;
+using APIHandler.Services.Dishes;
 using APIHandler.Services.GroupReservations;
 using APIHandler.Services.Locations;
 using APIHandler.Services.Orders;
@@ -29,17 +31,20 @@ public class GetReservationsForUserHandler : IApiRequestHandler
     private readonly ILocationService _locationService;
     private readonly IOrderService _orderService;
     private readonly IGroupReservationRepository _groupReservationRepository;
+    private readonly IDishService _dishService;
 
     public GetReservationsForUserHandler(
         IReservationRepository reservationRepository,
         ILocationService locationService,
         IOrderService orderService,
-        IGroupReservationRepository groupReservationRepository)
+        IGroupReservationRepository groupReservationRepository,
+        IDishService dishService)
     {
         _reservationRepository = reservationRepository ?? throw new ArgumentNullException(nameof(reservationRepository));
         _locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
         _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
         _groupReservationRepository = groupReservationRepository ?? throw new ArgumentNullException(nameof(groupReservationRepository));
+        _dishService = dishService ?? throw new ArgumentNullException(nameof(dishService));
     }
 
     public async Task<APIGatewayProxyResponse> HandleRequest(APIGatewayProxyRequest request, ILambdaContext context)
@@ -144,7 +149,18 @@ public class GetReservationsForUserHandler : IApiRequestHandler
                     guestInviteLinkAvailable = groupReservation.Status == GroupReservationStatus.Open;
             }
 
-            return ReservationMapper.ToReservationResponse(reservation, location.Address, reservationOrder, guestInviteLinkAvailable: guestInviteLinkAvailable);
+            // The order is already fetched above (for HasSubmittedPreOrder); surface its
+            // dishes too, otherwise the reservations list always reads "Pre-order: 0 dishes"
+            // even when the owner has picked items.
+            GetOrderResponse? preOrderResponse = null;
+            if (reservationOrder is not null && reservationOrder.Dishes.Count > 0)
+            {
+                var dishIds = reservationOrder.Dishes.Select(d => d.DishId).Distinct();
+                var dishes = await _dishService.GetDishesByIdsAsync(dishIds);
+                preOrderResponse = OrderMapper.ToOrderResponse(reservationOrder, dishes);
+            }
+
+            return ReservationMapper.ToReservationResponse(reservation, location.Address, reservationOrder, guestInviteLinkAvailable: guestInviteLinkAvailable, preOrder: preOrderResponse);
         }
         catch (Exception ex)
         {

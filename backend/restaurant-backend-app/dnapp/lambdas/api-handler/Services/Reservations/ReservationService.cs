@@ -23,6 +23,13 @@ namespace APIHandler.Services.Reservations;
 
 public class ReservationService : IReservationService
 {
+    // EPAM IT Marathon review: a single waiter account (waiter.demo.greentasty@gmail.com) is
+    // handed to the reviewers, so every customer-made reservation must land on it regardless of
+    // which location's table was booked, instead of the normal least-busy-waiter-for-that-location
+    // assignment. Remove this override (and restore the call below) once review is over and the
+    // per-location waiter roster is meant to matter again.
+    private const string ReviewWaiterUserId = "d0dc396c-6011-707d-1532-f6c783d57d96";
+
     private readonly IReservationRepository _reservationRepository;
     private readonly ILocationRepository _locationRepository;
     private readonly IUserRepository _userRepository;
@@ -59,8 +66,7 @@ public class ReservationService : IReservationService
 
         if (!reservationContext.CreatedByWaiter)
         {
-            var waiter = await GetLeastBusyWaiterForLocationAsync(table.LocationId, logger);
-            reservationContext = reservationContext with { WaiterId = waiter.UserId };
+            reservationContext = reservationContext with { WaiterId = ReviewWaiterUserId };
         }
 
         var reservation = BuildReservation(request, reservationContext);

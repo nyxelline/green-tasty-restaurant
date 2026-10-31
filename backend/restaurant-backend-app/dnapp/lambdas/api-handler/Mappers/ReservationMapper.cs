@@ -1,5 +1,6 @@
 using APIHandler.Constants;
 using APIHandler.Entities;
+using APIHandler.Models.Orders;
 using APIHandler.Models.Reservations;
 using APIHandler.Records;
 using System;
@@ -23,7 +24,7 @@ public static class ReservationMapper
     };
 
 
-    public static ReservationResponse ToReservationResponse(Reservation reservation, string address, Order? order = null, string restaurantName = "Green & Tasty", bool guestInviteLinkAvailable = false)
+    public static ReservationResponse ToReservationResponse(Reservation reservation, string address, Order? order = null, string restaurantName = "Green & Tasty", bool guestInviteLinkAvailable = false, GetOrderResponse? preOrder = null)
     => new()
     {
         Id = reservation.Id,
@@ -38,5 +39,6 @@ public static class ReservationMapper
         CustomerId = reservation.CustomerId, // for waiter dashboard
         HasSubmittedPreOrder = order is not null && order.Status is OrderStatus.Submitted or OrderStatus.SubmittedByCustomer,
         GuestInviteLinkAvailable = guestInviteLinkAvailable,
+        PreOrder = preOrder,
     };
 }

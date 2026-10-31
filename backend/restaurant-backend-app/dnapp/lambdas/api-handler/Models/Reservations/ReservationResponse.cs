@@ -1,4 +1,5 @@
 using APIHandler.Constants;
+using APIHandler.Models.Orders;
 using System;
 using System.Text.Json.Serialization;
 
@@ -41,4 +42,9 @@ public class ReservationResponse
 
     [JsonPropertyName("guestInviteLinkAvailable")]
     public bool GuestInviteLinkAvailable { get; set; }
+
+    // The reservation's own (non-cancelled) order, if any — lets the reservations list show
+    // the real dish count instead of always reading as empty.
+    [JsonPropertyName("preOrder")]
+    public GetOrderResponse? PreOrder { get; set; }
 }
