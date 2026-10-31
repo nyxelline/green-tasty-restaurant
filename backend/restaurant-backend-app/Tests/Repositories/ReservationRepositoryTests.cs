@@ -35,7 +35,7 @@ public class ReservationRepositoryTests
     [Fact]
     public async Task TryCreateReservationAsync_OverlappingLockEntry_RejectsCreate()
     {
-        var startTime = new DateTime(2026, 10, 27, 12, 0, 0, DateTimeKind.Utc);
+        var startTime = DateTime.UtcNow.Date.AddDays(1).AddHours(12);
         SetupLockResponse(1, [LockedReservation("existing", startTime.AddMinutes(30), startTime.AddMinutes(120))]);
 
         bool created = await _repository.TryCreateReservationAsync(ReservationFor("candidate", startTime, startTime.AddMinutes(90)));
@@ -47,7 +47,7 @@ public class ReservationRepositoryTests
     [Fact]
     public async Task TryCreateReservationAsync_FreeSlot_WritesLockAndReservationTogether()
     {
-        var startTime = new DateTime(2026, 10, 27, 12, 0, 0, DateTimeKind.Utc);
+        var startTime = DateTime.UtcNow.Date.AddDays(1).AddHours(12);
         SetupLockResponse(3, [LockedReservation("other", startTime.AddHours(3), startTime.AddHours(4))]);
 
         TransactWriteItemsRequest? transaction = null;
@@ -67,7 +67,7 @@ public class ReservationRepositoryTests
     [Fact]
     public async Task TryCreateReservationAsync_CompareAndSwapConflict_RereadsLockAndRejectsOverlap()
     {
-        var startTime = new DateTime(2026, 10, 27, 12, 0, 0, DateTimeKind.Utc);
+        var startTime = DateTime.UtcNow.Date.AddDays(1).AddHours(12);
         _client
             .SetupSequence(client => client.GetItemAsync(It.IsAny<GetItemRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(LockResponse(4, []))

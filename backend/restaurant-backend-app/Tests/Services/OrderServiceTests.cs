@@ -101,7 +101,7 @@ public class OrderServiceTests
         reservation.StartTime = DateTime.UtcNow.AddHours(1);
 
         order.OrderId = "ord-1";
-        order.Status = OrderStatus.Created;
+        order.Status = OrderStatus.SubmittedByCustomer;
         order.Dishes = new List<OrderItem> { new OrderItem { DishId = dishId, State = OrderItemState.Pending } };
 
         _mockReservationRepository.Setup(r => r.GetReservationByIdAsync(reservationId)).ReturnsAsync(reservation);
@@ -124,7 +124,7 @@ public class OrderServiceTests
         reservation.WaiterId = callerId;
         reservation.StartTime = DateTime.UtcNow.AddHours(1);
         order.OrderId = "ord-1";
-        order.Status = OrderStatus.Created;
+        order.Status = OrderStatus.SubmittedByCustomer;
         order.Dishes = new List<OrderItem>
         {
             new OrderItem { DishId = dishId, State = OrderItemState.Pending },
@@ -137,7 +137,7 @@ public class OrderServiceTests
         await _orderService.ConfirmPreOrderDishAsync(callerId, reservationId, dishId, _mockLogger.Object);
 
         Assert.Equal(OrderItemState.Confirmed, order.Dishes[0].State);
-        Assert.Equal(OrderStatus.Created, order.Status);
+        Assert.Equal(OrderStatus.SubmittedByCustomer, order.Status);
     }
 
     [Theory]
@@ -207,6 +207,7 @@ public class OrderServiceTests
         reservation.WaiterId = callerId;
         reservation.StartTime = DateTime.UtcNow.AddHours(1);
         order.OrderId = "ord-1";
+        order.Status = OrderStatus.SubmittedByCustomer;
         order.Dishes = new List<OrderItem>();
 
         _mockReservationRepository.Setup(r => r.GetReservationByIdAsync(reservationId)).ReturnsAsync(reservation);
@@ -226,7 +227,7 @@ public class OrderServiceTests
         reservation.WaiterId = callerId;
         reservation.StartTime = DateTime.UtcNow.AddHours(1);
         order.OrderId = "ord-1";
-        order.Status = OrderStatus.Created;
+        order.Status = OrderStatus.SubmittedByCustomer;
         order.Dishes = new List<OrderItem>
         {
             new OrderItem { DishId = dishToCancelId, State = OrderItemState.Pending },
@@ -253,7 +254,7 @@ public class OrderServiceTests
         reservation.WaiterId = callerId;
         reservation.StartTime = DateTime.UtcNow.AddHours(1);
         order.OrderId = "ord-1";
-        order.Status = OrderStatus.Created;
+        order.Status = OrderStatus.SubmittedByCustomer;
         order.Dishes = new List<OrderItem>
         {
             new OrderItem { DishId = dishId, State = OrderItemState.Pending },
@@ -266,7 +267,7 @@ public class OrderServiceTests
         await _orderService.CancelPreOrderDishAsync(callerId, reservationId, dishId, _mockLogger.Object);
 
         Assert.Equal(OrderItemState.Canceled, order.Dishes[0].State);
-        Assert.Equal(OrderStatus.Created, order.Status);
+        Assert.Equal(OrderStatus.SubmittedByCustomer, order.Status);
     }
 
     [Theory]
@@ -278,6 +279,7 @@ public class OrderServiceTests
         reservation.WaiterId = callerId;
         reservation.StartTime = DateTime.UtcNow.AddHours(1);
         order.OrderId = "ord-1";
+        order.Status = OrderStatus.SubmittedByCustomer;
         order.Dishes = new List<OrderItem>();
 
         _mockReservationRepository.Setup(r => r.GetReservationByIdAsync(It.IsAny<string>())).ReturnsAsync(reservation);
