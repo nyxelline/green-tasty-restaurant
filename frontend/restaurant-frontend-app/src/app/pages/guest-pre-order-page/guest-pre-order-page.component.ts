@@ -132,6 +132,7 @@ export class GuestPreOrderPageComponent {
             Appetizer: 'Appetizers',
             MainCourse: 'Main Courses',
             Dessert: 'Desserts',
+            Beverage: 'Drinks',
         };
 
         return labels[category] ?? category.replace(/([a-z])([A-Z])/g, '$1 $2');

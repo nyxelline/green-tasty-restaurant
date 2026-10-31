@@ -94,6 +94,7 @@ public class DishMapper
             DishType.Appetizer => DishTypeLabels.Appetizer,
             DishType.MainCourse => DishTypeLabels.MainCourse,
             DishType.Dessert => DishTypeLabels.Dessert,
+            DishType.Beverage => DishTypeLabels.Beverage,
             _ => "Unknown"
         };
     }

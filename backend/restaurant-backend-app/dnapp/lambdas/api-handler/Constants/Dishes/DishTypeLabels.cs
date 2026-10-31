@@ -7,4 +7,6 @@ public static class DishTypeLabels
     public const string MainCourse = "Main course";
 
     public const string Dessert = "Dessert";
+
+    public const string Beverage = "Beverage";
 }
