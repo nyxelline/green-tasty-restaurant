@@ -2,7 +2,7 @@ export type GuestStatusKind = 'confirmed' | 'choosing' | 'empty' | 'attention' |
 
 export type BannerKind = 'info' | 'warn' | 'error';
 
-export type LoadState = 'loading' | 'ready' | 'error';
+export type LoadState = 'loading' | 'ready' | 'error' | 'submitted';
 
 export interface BannerView {
   kind: BannerKind;

@@ -96,6 +96,7 @@ export class WaiterDashboardComponent implements OnInit {
 
   readonly reservations = signal<ReservationCustomer[]>([]);
   readonly reservationsLoaded = signal(false);
+  readonly isRefreshing = signal(false);
   readonly tables = signal<Table[]>([]);
 
   readonly dateOptions = signal<string[]>([]);
@@ -452,7 +453,20 @@ export class WaiterDashboardComponent implements OnInit {
       });
   }
 
-  private loadReservations(): void {
+  // Reservations (customer name, pre-order dish count/status) are only ever fetched
+  // on page load - there's no polling or push update. So if a customer or a group's
+  // owner submits a pre-order while a waiter already has this page open, the waiter
+  // sees nothing change until they reload. Exposed as a Refresh button rather than
+  // silent polling to keep this a deliberate, visible action.
+  refreshReservations(): void {
+    if (this.isRefreshing()) {
+      return;
+    }
+    this.isRefreshing.set(true);
+    this.loadReservations(() => this.isRefreshing.set(false));
+  }
+
+  private loadReservations(onComplete?: () => void): void {
     const waiterName = this.waiterName();
 
     this.reservationService
@@ -471,10 +485,12 @@ export class WaiterDashboardComponent implements OnInit {
         next: (reservations) => {
           this.reservations.set(reservations);
           this.reservationsLoaded.set(true);
+          onComplete?.();
         },
         error: () => {
           this.reservationsLoaded.set(true);
           this.toast.error('Reservations could not be loaded.', 'Reservations');
+          onComplete?.();
         },
       });
   }
@@ -492,10 +508,22 @@ export class WaiterDashboardComponent implements OnInit {
       })
     );
 
+    // GET /users/{id}/name never 404s - it returns 200 "Anonymous User" when the
+    // Cognito user has no given/family name, so any error reaching here is a real
+    // failure (401/403/5xx/network), not a "name not set" case. Previously this
+    // swallowed every error silently into "Unknown customer" with nothing logged,
+    // so a real failure (e.g. the waiter lacking permission to resolve this
+    // customerId) was indistinguishable from normal behavior.
     const creator$ = reservation.customerId
       ? this.usersService.getUserName(reservation.customerId).pipe(
         map((name) => ({ name, role: 'Customer' as const })),
-        catchError(() => of({ name: 'Unknown customer', role: 'Customer' as const }))
+        catchError((error: unknown) => {
+          console.error(
+            `Could not load customer name for reservation ${reservation.id} (customerId: ${reservation.customerId})`,
+            error
+          );
+          return of({ name: 'Unknown customer', role: 'Customer' as const });
+        })
       )
       : of({ name: waiterName, role: 'Waiter' as const });
 

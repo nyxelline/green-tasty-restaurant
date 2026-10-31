@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { map, of, switchMap } from 'rxjs';
 
 import { GroupBill } from '@app/models/group-order/group-bill.model';
@@ -214,7 +215,21 @@ export class GroupOrderPageComponent implements OnInit {
           this.loadState.set('ready');
           this.loadBill();
         },
-        error: () => this.loadState.set('error'),
+        // The backend refuses to hand back an invite token once the owner has already
+        // done the consolidated submit (GroupReservationSubmittedException, surfaced as
+        // errorCode "GroupReservationSubmitted") - that's expected, not a load failure.
+        // This used to fall into the generic 'error' state ("We could not load the group
+        // order. Try again"), which made it impossible for the owner to revisit this page
+        // after submitting without a real, misleading-looking error.
+        error: (error: unknown) => {
+          const errorCode =
+            error instanceof HttpErrorResponse &&
+            error.error &&
+            typeof error.error === 'object'
+              ? (error.error as { errorCode?: string }).errorCode
+              : undefined;
+          this.loadState.set(errorCode === 'GroupReservationSubmitted' ? 'submitted' : 'error');
+        },
       });
   }
 

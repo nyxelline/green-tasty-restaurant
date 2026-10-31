@@ -20,6 +20,15 @@
       </div>
     }
 
+    @case ('submitted') {
+      <div class="group-order__status">
+        <p>This group pre-order has already been submitted and can no longer be changed here.</p>
+        <button type="button" class="button button--secondary button--large" (click)="goBack()">
+          Back to my reservations
+        </button>
+      </div>
+    }
+
     @case ('ready') {
       <section class="cart">
         <div class="cart__body">

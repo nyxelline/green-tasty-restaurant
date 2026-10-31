@@ -43,6 +43,16 @@
     </button>
   </div>
 
+  <button
+    type="button"
+    class="button button--secondary button--large"
+    aria-label="Refresh reservations"
+    [disabled]="isRefreshing()"
+    (click)="refreshReservations()"
+  >
+    {{ isRefreshing() ? 'Refreshing...' : 'Refresh' }}
+  </button>
+
   <app-custom-button class="btn-add-reservation" (click)="onOpenMakeReservationModal()">
     <img class="button-icon" src="assets/svg/plus-white.svg" alt="" />
     New Reservation
