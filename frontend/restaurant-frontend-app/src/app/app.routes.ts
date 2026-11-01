@@ -11,7 +11,7 @@ import { ReservationDashboardComponent } from './pages/reservation-dashboard/res
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 import { WaiterDashboardComponent } from './pages/waiter-dashboard/waiter-dashboard.component';
 import { ReportingDashboardComponent } from './pages/reporting-dashboard/reporting-dashboard.component';
-import { AdminGuard } from './auth/guards/admin.guard';
+import { WaiterReportsGuard } from './auth/guards/waiter-reports.guard';
 
 export const routes: Routes = [
   {
@@ -54,7 +54,7 @@ export const routes: Routes = [
   {
     path: 'reports',
     component: ReportingDashboardComponent,
-    canActivate: [AdminGuard],
+    canActivate: [WaiterReportsGuard],
   },
 
   {

@@ -58,17 +58,21 @@ public class UserService : IUserService
     {
         try
         {
+            // "cognito:groups" is a JWT claim added by the authorizer at token-issue time,
+            // not a Cognito user attribute - AdminGetUser/ListUsers (GetUserByIdAsync) never
+            // returns it, so reading it off user.Attributes always came back empty and this
+            // method always returned null. Look the user's groups up directly instead
+            // (same approach as GetAuthorizedUserHandler.GetUserRoleAsync).
             var user = await _userRepository.GetUserByIdAsync(userId);
             if (user == null) return null;
 
-            var roleAttribute = user.Attributes.FirstOrDefault(a => a.Name == "cognito:groups")?.Value;
+            var groups = await _userRepository.GetUserGroupsAsync(user.Username);
 
-            if (string.IsNullOrEmpty(roleAttribute))
-                return null;
-
-            return roleAttribute.Split(',')
+            return groups
+                .Where(name => Enum.TryParse<Roles>(name, out _))
                 .Select(Enum.Parse<Roles>)
                 .OrderBy(r => r)
+                .Cast<Roles?>()
                 .FirstOrDefault();
         }
         catch (Exception)

@@ -103,7 +103,7 @@ Date now resolves correctly via a single `Date` constructor call instead of sequ
 ---
 
 **ID: TC-06** – Verify a logged-in customer can submit feedback on a Finished reservation
-**Status:** Passed
+**Status:** Failed (partially) – re-test after next redeploy
 **Covers:** US04
 
 **Pre-conditions:**
@@ -113,10 +113,10 @@ Customer has a Finished reservation with an order attached; customer has a valid
 1. Open "Leave Feedback", rate the service, and submit.
 
 **Expected result:**
-`POST /feedback` returns `200`/`201`; no "Unauthorized" toast.
+`POST /feedback` returns `200`/`201`; no "Unauthorized" or "Forbidden" toast.
 
 **Actual result:**
-`POST /feedback` now carries the Cognito authorizer (`deployment_resources.json` fix) and resolves the caller's identity correctly. See DR-06. Requires an infra redeploy to verify live after this fix.
+Verified live: the original `401 Unauthorized` is gone (Cognito authorizer now attached to `POST /feedback`). But the same live call now returns `403 "Only customers can create feedback."` for an actual customer account – a second, previously-hidden bug in `UserService.GetUserRoleAsync`. Fixed in code (not yet redeployed). See DR-06. Re-run this test after the next backend redeploy before marking Passed.
 
 ---
 

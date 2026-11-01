@@ -2,6 +2,7 @@
 using Amazon.CognitoIdentityProvider.Model;
 using APIHandler.Constants;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -43,6 +44,17 @@ public class UserRepository : IUserRepository
     {
         var request = new ListUsersRequest { UserPoolId = ResourceNames.UserPoolId };
         return await _cognitoClient.ListUsersAsync(request);
+    }
+
+    public async Task<IEnumerable<string>> GetUserGroupsAsync(string username)
+    {
+        var response = await _cognitoClient.AdminListGroupsForUserAsync(new AdminListGroupsForUserRequest
+        {
+            UserPoolId = ResourceNames.UserPoolId,
+            Username = username
+        });
+
+        return response.Groups.Select(g => g.GroupName);
     }
 
     public async Task EnsureGroupExistsAsync(string groupName)

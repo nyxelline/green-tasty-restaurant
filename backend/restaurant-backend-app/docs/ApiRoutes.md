@@ -25,7 +25,7 @@ Response:
 ```json
 {
     "email": "john_doe@mail.com",
-    "password": "1234SecurePassword!",
+    "password": "1234SecurePassword!"
 }
 ```
 
@@ -34,7 +34,7 @@ Response: `200 OK`
 {
     "message": "Sign in successful",
     "idToken": "token",
-    "accessToken": "access token",
+    "accessToken": "access token"
 }
 ```
 
