@@ -28,8 +28,6 @@ mark service complete.
 |---|---|
 | ![Main page](docs/screenshots/main-page.png) | ![Book a Table](docs/screenshots/book-a-table.png) |
 
-*Waiter dashboard and group pre-order screens aren't captured yet — see [Known Issues](#known-issues--possible-improvements).*
-
 ## Documentation
 
 - [User Stories](docs/user-stories.md) – main features, written as Epic/Role/Description/AC.
@@ -131,7 +129,6 @@ All tables are `PAY_PER_REQUEST`. Exact attribute shapes live in each table's `E
 - **Dish availability ("Out of Stock") is set manually by staff**, not synced from a real inventory system.
 - **The pre-order edit cutoff (30 minutes before the reservation) is a fixed constant**, not configurable per location or reservation.
 - **No local-only backend run** (no docker-compose / local DynamoDB) – backend code can only be exercised once deployed to AWS; see [Local Development](#local-development).
-- **Screenshots only cover two pages** – the waiter dashboard and group pre-order flow aren't captured yet.
 - **No API versioning/changelog** – the Swagger UI always reflects whatever is currently deployed; there's no way to see what changed between deploys.
 - **No AWS WAF / rate limiting in front of API Gateway or CloudFront.** The public unauthenticated endpoints (reservation creation, group-order invite links) have no request-rate protection beyond API Gateway's account-level default throttling – a dedicated WAF with rate-based rules would be the next step if this went past a student project.
 

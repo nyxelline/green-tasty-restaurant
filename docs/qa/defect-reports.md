@@ -142,3 +142,18 @@ corruption, infra misconfiguration, group/guest consistency, resilience, concurr
 **Expected result:** All three waiter-only pages require role `Waiter`; everyone else is redirected elsewhere.
 
 **Root cause:** `AdminGuard` (template-inherited – confirmed byte-identical in two classmates' independent copies of the same marathon starter) checked a role that doesn't exist in this system's Cognito setup. `/waiter-reservations` and `/waiter-pre-order` were never given a role-aware guard at all. Fixed by introducing a single `WaiterGuard` (checks `role === 'Waiter'`, redirects to `/main` on failure) and applying it to all three routes.
+
+---
+
+**ID: DR-09** – Signing in with an unregistered email returns 500 instead of 401
+**Env:** P_PRD | **Priority:** Medium | **Severity:** Minor | **Status:** Fixed
+
+**Pre-conditions:** None – any email that was never registered.
+
+**Steps:**
+1. `POST /signin` with an email nobody has registered, any password.
+
+**Actual result:** `500 {"error":"Internal Server Error"}`. A wrong password for a *real* account correctly returns `401 "Invalid email or password"`, but an unregistered email crashed the handler instead.
+**Expected result:** Both cases return the same `401 "Invalid email or password"` – the point of using one generic message for both is to not reveal whether an email is registered, which a 500-vs-401 split already undermines.
+
+**Root cause:** `SignInHandler.TrySignInUserAsync` only caught Cognito's `NotAuthorizedException` (wrong password for an existing user); `UserNotFoundException` (no such user at all) was never caught, so it propagated as an unhandled exception. Found while adding AQA coverage for sign-in negative paths (`Tests/Api/AuthNegativeApiTests.cs`). Fixed by also catching `UserNotFoundException` and returning the same 401.

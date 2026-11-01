@@ -1,0 +1,83 @@
+name: Deploy backend
+
+# Redeploys the backend whenever backend code lands on main, so a merged fix (like the
+# Cognito-authorizer or role-lookup bugs documented in docs/qa/defect-reports.md) doesn't
+# sit undeployed until someone remembers to run `syndicate update` by hand - see
+# docs/deployment.md for the equivalent manual steps this automates.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/restaurant-backend-app/**'
+  workflow_dispatch:
+    inputs:
+      full_deploy:
+        description: 'Run "syndicate deploy" (new/changed AWS resources) instead of "syndicate update" (Lambda code only)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  id-token: write   # for OIDC -> AWS, no long-lived access keys stored in the repo
+  contents: read
+
+env:
+  BACKEND_DIR: backend/restaurant-backend-app
+  SYNDICATE_DEPLOY_NAME: dev
+  AWS_REGION: eu-north-1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: ${{ env.BACKEND_DIR }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build and test before touching anything deployed
+        run: |
+          dotnet restore restaurant-backend-app.sln
+          dotnet build restaurant-backend-app.sln --no-restore
+          dotnet test restaurant-backend-app.sln --no-build
+
+      - name: Set up Python (Syndicate is a Python CLI)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install aws-syndicate
+        run: pip install aws-syndicate
+
+      # One-time setup this workflow depends on, done once in the AWS console/CLI, not here:
+      #   1. Add a GitHub OIDC identity provider to the AWS account (token.actions.githubusercontent.com).
+      #   2. Create an IAM role trusting that provider for this repo, with permissions to deploy
+      #      the Syndicate-managed Lambdas/API Gateway/IAM resources.
+      #   3. Set that role's ARN as the AWS_DEPLOY_ROLE_ARN repository variable (Settings -> Secrets
+      #      and variables -> Actions -> Variables), so this step has something to assume.
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Syndicate build
+        run: |
+          export SDCT_CONF="$(pwd)/.syndicate-config-restaurant-backend-app"
+          syndicate build
+
+      - name: Syndicate deploy or update
+        run: |
+          export SDCT_CONF="$(pwd)/.syndicate-config-restaurant-backend-app"
+          if [ "${{ inputs.full_deploy }}" = "true" ]; then
+            syndicate deploy --deploy_name "$SYNDICATE_DEPLOY_NAME" --replace_output
+          else
+            syndicate update --deploy_name "$SYNDICATE_DEPLOY_NAME"
+          fi

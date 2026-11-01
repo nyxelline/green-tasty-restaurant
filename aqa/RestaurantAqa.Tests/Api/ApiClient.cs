@@ -178,6 +178,37 @@ public sealed class ApiClient : IDisposable
         return null;
     }
 
+    /// <summary>Raw DELETE /reservations - body is {"id": reservationId}, per the real frontend's cancelReservation$ call.</summary>
+    public async Task<HttpResponseMessage> CancelReservationRawAsync(string reservationId, string? idToken)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Delete, "reservations")
+        {
+            Content = JsonContent.Create(new { id = reservationId })
+        };
+        if (idToken is not null)
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", idToken);
+        return await _http.SendAsync(req);
+    }
+
+    /// <summary>Raw PUT /reservations - body matches EditReservationRequest (reservationId/startTime/endTime/guestCount).</summary>
+    public async Task<HttpResponseMessage> EditReservationRawAsync(
+        string reservationId, DateTime startTimeUtc, DateTime endTimeUtc, int guestCount, string? idToken)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Put, "reservations")
+        {
+            Content = JsonContent.Create(new
+            {
+                reservationId,
+                startTime = startTimeUtc,
+                endTime = endTimeUtc,
+                guestCount
+            })
+        };
+        if (idToken is not null)
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", idToken);
+        return await _http.SendAsync(req);
+    }
+
     /// <summary>The L1 "view participants" endpoint itself, exposed raw so tests can assert status codes too.</summary>
     public Task<HttpResponseMessage> GetGroupSessionsRawAsync(string groupReservationId, string? idToken)
         => GetRawAsync($"guest/groups/{groupReservationId}/sessions", idToken);

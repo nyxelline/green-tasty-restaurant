@@ -74,6 +74,15 @@ public class SignInHandler : IApiRequestHandler
             context.Logger.LogLine("Invalid email or password");
             return null;
         }
+        catch (UserNotFoundException)
+        {
+            // Cognito distinguishes "wrong password" (NotAuthorizedException) from "no such user"
+            // (UserNotFoundException), but this handler deliberately doesn't: returning the same
+            // generic 401 for both avoids leaking which emails are registered, and previously this
+            // case wasn't caught at all, surfacing as an unhandled 500 instead of 401.
+            context.Logger.LogLine("Invalid email or password (user not found)");
+            return null;
+        }
     }
 
     private static bool TryDeserializeRequest(APIGatewayProxyRequest request, out SignInRequest? signInRequest)

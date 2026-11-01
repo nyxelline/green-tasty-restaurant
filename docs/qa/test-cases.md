@@ -155,3 +155,22 @@ The Customer is redirected away from all three; the Waiter reaches all three nor
 
 **Actual result:**
 All three routes now share `WaiterGuard`, which checks role `Waiter` and redirects non-waiters to `/main`. See DR-08.
+
+---
+
+**ID: TC-09** – Verify signing in with an unregistered email is rejected the same way as a wrong password
+**Status:** Passed
+**Covers:** (auth, no specific user story)
+
+**Pre-conditions:**
+None – any email that has never been registered.
+
+**Steps:**
+1. `POST /signin` with an unregistered email and any password.
+2. For comparison, `POST /signin` with a real account's email and a wrong password.
+
+**Expected result:**
+Both return `401 "Invalid email or password"` – the same generic message either way.
+
+**Actual result:**
+`SignInHandler` now catches `UserNotFoundException` alongside `NotAuthorizedException` and returns 401 for both. See DR-09.
