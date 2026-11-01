@@ -153,6 +153,17 @@ For an incremental update instead of a full deploy, run the matching command for
 syndicate update
 ```
 
+Syndicate's DynamoDB update path currently chokes on the `Reservations` table specifically
+(`AttributeError: 'NoneType' object has no attribute 'get'`), so in practice a plain
+`syndicate update` fails there. Work around it by excluding that one table and replacing the
+build output:
+
+```
+syndicate update --excluded-resources Reservations --replace_output
+```
+
+(The automated `.github/workflows/deploy.yml` CI deploy uses the same workaround.)
+
 ## 3. Deploy the frontend
 
 This section describes the manual deployment flow. It does not use GitHub Actions.

@@ -133,5 +133,8 @@ jobs:
           if [ "${{ inputs.full_deploy }}" = "true" ]; then
             syndicate deploy --deploy_name "$SYNDICATE_DEPLOY_NAME" --replace_output
           else
-            syndicate update --deploy_name "$SYNDICATE_DEPLOY_NAME"
+            # Reservations is excluded: Syndicate's DynamoDB update path chokes on it
+            # (AttributeError: 'NoneType' object has no attribute 'get') - same workaround
+            # already used for manual local deploys, see docs/deployment.md.
+            syndicate update --deploy_name "$SYNDICATE_DEPLOY_NAME" --excluded-resources Reservations --replace_output
           fi
