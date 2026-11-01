@@ -188,7 +188,7 @@
           "default_error_pattern": true
         },
         "POST": {
-          "authorization_type": "NONE",
+          "authorization_type": "cognito_authorizer",
           "integration_type": "lambda",
           "lambda_name": "api-handler",
           "api_key_required": false,
