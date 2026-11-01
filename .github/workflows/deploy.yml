@@ -19,7 +19,6 @@ on:
         type: boolean
 
 permissions:
-  id-token: write   # for OIDC -> AWS, no long-lived access keys stored in the repo
   contents: read
 
 env:
@@ -56,16 +55,16 @@ jobs:
       - name: Install aws-syndicate
         run: pip install aws-syndicate
 
-      # One-time setup this workflow depends on, done once in the AWS console/CLI, not here:
-      #   1. Add a GitHub OIDC identity provider to the AWS account (token.actions.githubusercontent.com).
-      #   2. Create an IAM role trusting that provider for this repo, with permissions to deploy
-      #      the Syndicate-managed Lambdas/API Gateway/IAM resources.
-      #   3. Set that role's ARN as the AWS_DEPLOY_ROLE_ARN repository variable (Settings -> Secrets
-      #      and variables -> Actions -> Variables), so this step has something to assume.
-      - name: Configure AWS credentials via OIDC
+      # Static IAM user credentials, not OIDC: this AWS account's Organizations SCP blocks
+      # iam:CreateOpenIDConnectProvider/CreateRole for the deploy user, so a short-lived OIDC
+      # role isn't an option here. Set AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY as repository
+      # secrets (Settings -> Secrets and variables -> Actions -> Secrets) from the same IAM user
+      # (marathon-deployer) already used for manual deploys - see docs/deployment.md.
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Syndicate build
