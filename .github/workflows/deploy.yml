@@ -67,6 +67,61 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # The .syndicate-config-restaurant-backend-app/ directory is gitignored on purpose (it
+      # holds the real AWS account id - see the Secrets hygiene item in README's Security
+      # section), so it never reaches the CI checkout. Generate it here instead, from the AWS
+      # identity the previous step just authenticated as, plus the bucket-naming convention
+      # docs/deployment.md documents for setting this up by hand.
+      - name: Generate Syndicate config
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          CONFIG_DIR="$(pwd)/.syndicate-config-restaurant-backend-app"
+          mkdir -p "$CONFIG_DIR"
+
+          printf '%s\n' \
+            "account_id: \"$ACCOUNT_ID\"" \
+            "region: ${{ env.AWS_REGION }}" \
+            "project_path: \"$(pwd)\"" \
+            "deploy_target_bucket: \"marathon2026-restaurant-artifacts-$ACCOUNT_ID\"" \
+            > "$CONFIG_DIR/syndicate.yml"
+
+          printf '%s\n' \
+            "account_id: \"$ACCOUNT_ID\"" \
+            "region: ${{ env.AWS_REGION }}" \
+            "lambdas_alias_name: \"${{ env.SYNDICATE_DEPLOY_NAME }}\"" \
+            "logs_expiration: 30" \
+            "" \
+            "api_gateway_name: \"restaurant-backend-api\"" \
+            "user_pool_name: \"restaurant-backend-user-pool\"" \
+            "reports_queue_name: \"restaurant-reports-queue\"" \
+            "" \
+            "waiter_list_table_name: \"Waiters\"" \
+            "feedback_table_name: \"Feedback\"" \
+            "locations-table: \"Locations\"" \
+            "tables_table: \"Tables\"" \
+            "dishes-table: \"Dishes\"" \
+            "reservations-table: \"Reservations\"" \
+            "orders-table: \"Orders\"" \
+            "reports_table_name: \"Reports\"" \
+            "reports_history_table_name: \"ReportsHistory\"" \
+            "profile_images_table_name: \"ProfileImages\"" \
+            "notifications_table_name: \"Notifications\"" \
+            "" \
+            "waiters_global_index: \"locationId-index\"" \
+            "feedback_global_index: \"locationId-createdAt-index\"" \
+            "tables-locationId-global-index: \"locationId-tableNumber-index\"" \
+            "reservations-table-global-index: \"GSI_ByTableId\"" \
+            "reservations-customerId-global-index: \"GSI_UserId\"" \
+            "reservations-waiterId-global-index: \"GSI_WaiterId\"" \
+            "orders_index_reservationid: \"GSI_ReservationId\"" \
+            "notifications_userId-global-index: \"UserIdIndex\"" \
+            "" \
+            "imagesBucketName: \"restaurant-backend-dev-images-$ACCOUNT_ID\"" \
+            "profileImagesBucketName: \"restaurant-backend-dev-profile-images-$ACCOUNT_ID\"" \
+            "swagger_ui_hoster_bucket_name: \"restaurant-backend-dev-swagger-ui-$ACCOUNT_ID\"" \
+            "email_from: \"\"" \
+            > "$CONFIG_DIR/syndicate_aliases.yml"
+
       - name: Syndicate build
         run: |
           export SDCT_CONF="$(pwd)/.syndicate-config-restaurant-backend-app"
