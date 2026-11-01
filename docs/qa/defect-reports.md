@@ -95,7 +95,7 @@ corruption, infra misconfiguration, group/guest consistency, resilience, concurr
 ---
 
 **ID: DR-06** – Logged-in customer gets "Unauthorized", then "Forbidden", when submitting feedback – two stacked bugs
-**Env:** P_PRD | **Priority:** High | **Severity:** Critical | **Status:** Partially fixed (1 of 2 confirmed live; 2nd fixed in code, pending redeploy)
+**Env:** P_PRD | **Priority:** High | **Severity:** Critical | **Status:** Fixed (both confirmed live)
 
 **Pre-conditions:** Customer has a Finished reservation with an order attached (feedback is eligible).
 
@@ -106,7 +106,7 @@ corruption, infra misconfiguration, group/guest consistency, resilience, concurr
 **Root cause:** Infra-level misconfiguration, not application code: in `deployment_resources.json`, the `/feedback` resource's `POST` method was deployed with `"authorization_type": "NONE"` (its sibling `PUT` method correctly used `"cognito_authorizer"`), so API Gateway never attached the Cognito authorizer to `POST /feedback` and no claims reached the Lambda. Fixed by changing `POST /feedback`'s `authorization_type` to `cognito_authorizer`. **Confirmed live** after redeploy: the 401 is gone.
 
 **Bug 2 – Actual result:** With the 401 gone, the same request now returns `403 "Only customers can create feedback."` for an actual customer account, consistently (3/3 attempts), confirmed live via direct API call with a valid customer session token.
-**Root cause:** `UserService.GetUserRoleAsync` tried to read a `"cognito:groups"` value off `user.Attributes` (Cognito's AdminGetUser/ListUsers attribute list) – but `cognito:groups` is a JWT claim added by the authorizer at token-issue time, never a persisted Cognito user attribute, so that lookup always returned empty and the method always returned `null`, tripping the `userRole != Roles.Customer` check for every user regardless of their real role. `GetAuthorizedUserHandler` already had the correct pattern (`AdminListGroupsForUser`) for the same problem. Fixed by adding `IUserRepository.GetUserGroupsAsync` (via `AdminListGroupsForUser`) and rewriting `GetUserRoleAsync` to use it. **Not yet deployed/confirmed live** – code fix only.
+**Root cause:** `UserService.GetUserRoleAsync` tried to read a `"cognito:groups"` value off `user.Attributes` (Cognito's AdminGetUser/ListUsers attribute list) – but `cognito:groups` is a JWT claim added by the authorizer at token-issue time, never a persisted Cognito user attribute, so that lookup always returned empty and the method always returned `null`, tripping the `userRole != Roles.Customer` check for every user regardless of their real role. `GetAuthorizedUserHandler` already had the correct pattern (`AdminListGroupsForUser`) for the same problem. Fixed by adding `IUserRepository.GetUserGroupsAsync` (via `AdminListGroupsForUser`) and rewriting `GetUserRoleAsync` to use it. **Confirmed live** after redeploy: `POST /feedback` now returns `200` with the created feedback record.
 
 **Expected result:** A logged-in customer with a valid session can submit feedback end-to-end.
 
