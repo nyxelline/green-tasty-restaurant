@@ -125,3 +125,20 @@ corruption, infra misconfiguration, group/guest consistency, resilience, concurr
 **Expected result:** Every reservation resolves its customer name and order summary regardless of list size.
 
 **Root cause / fix:** Unbounded concurrent fan-out in `waiter-dashboard.component.ts`. Replaced `forkJoin` with `mergeMap(..., 2)` (concurrency capped at 2, tuned empirically against the live API) to stay under the backend's throttle limit.
+
+---
+
+**ID: DR-08** – Frontend route guards didn't match the actual role model; waiter pages reachable by any logged-in user or by no one
+**Env:** P_PRD | **Priority:** High | **Severity:** Critical | **Status:** Fixed
+
+**Pre-conditions:** None beyond having any authenticated account.
+
+**Steps:**
+1. Sign in as any Customer and navigate directly to `/reports`.
+2. Sign in as any Customer and navigate directly to `/waiter-reservations`.
+3. Navigate to `/waiter-pre-order` with any session state, including none.
+
+**Actual result:** `/reports` used `AdminGuard`, requiring `role === 'Admin'` – a role never assigned to anyone in this system (only `Customer`/`Waiter` Cognito groups exist), so the page was unreachable even for the waiters it's meant for; its failure redirect also pointed back at `/reports` itself. `/waiter-reservations` used `AuthGuard`, which only checks that *some* user is logged in, not their role – any Customer could open the waiter dashboard page. `/waiter-pre-order` had no route guard at all.
+**Expected result:** All three waiter-only pages require role `Waiter`; everyone else is redirected elsewhere.
+
+**Root cause:** `AdminGuard` (template-inherited – confirmed byte-identical in two classmates' independent copies of the same marathon starter) checked a role that doesn't exist in this system's Cognito setup. `/waiter-reservations` and `/waiter-pre-order` were never given a role-aware guard at all. Fixed by introducing a single `WaiterGuard` (checks `role === 'Waiter'`, redirects to `/main` on failure) and applying it to all three routes.

@@ -11,7 +11,7 @@ import { ReservationDashboardComponent } from './pages/reservation-dashboard/res
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 import { WaiterDashboardComponent } from './pages/waiter-dashboard/waiter-dashboard.component';
 import { ReportingDashboardComponent } from './pages/reporting-dashboard/reporting-dashboard.component';
-import { WaiterReportsGuard } from './auth/guards/waiter-reports.guard';
+import { WaiterGuard } from './auth/guards/waiter.guard';
 
 export const routes: Routes = [
   {
@@ -39,7 +39,7 @@ export const routes: Routes = [
   {
     path: 'waiter-reservations',
     component: WaiterDashboardComponent,
-    canActivate: [AuthGuard],
+    canActivate: [WaiterGuard],
     data: { authorized: true },
   },
   {
@@ -54,7 +54,7 @@ export const routes: Routes = [
   {
     path: 'reports',
     component: ReportingDashboardComponent,
-    canActivate: [WaiterReportsGuard],
+    canActivate: [WaiterGuard],
   },
 
   {
@@ -92,6 +92,7 @@ export const routes: Routes = [
       },
       {
         path: 'waiter-pre-order',
+        canActivate: [WaiterGuard],
         loadComponent: () =>
           import('./pages/waiter-pre-order-page/waiter-pre-order-page.component').then(
             (m) => m.WaiterPreOrderPageComponent

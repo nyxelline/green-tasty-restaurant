@@ -156,6 +156,11 @@ trigger through normal use (not only a deliberate attacker), was fixed. Summary 
 - `GET /reservations/{id}` and the group-order invite-token endpoint returned another customer's
   reservation/order data to any authenticated user who knew or guessed the ID (classic IDOR). Both now
   verify the caller is the reservation's owner or its assigned waiter.
+- Frontend route guards didn't match the actual role model: `/reports` required a role (`Admin`) that
+  is never assigned to anyone in this system (only `Customer` and `Waiter` Cognito groups exist), making
+  it unreachable even for the waiters it's meant for; `/waiter-reservations` only checked that *some*
+  user was logged in (any Customer could open it), and `/waiter-pre-order` had no route guard at all.
+  Consolidated into a single `WaiterGuard` requiring role `Waiter`, applied to all three routes.
 
 ### Race conditions
 - Joining a group reservation used a read-then-write check against the guest limit, so two guests
@@ -181,7 +186,26 @@ trigger through normal use (not only a deliberate attacker), was fixed. Summary 
   instead. No actual secrets (credentials, access keys, tokens) appear anywhere in this repository.
 
 These findings were part of normal iteration during a time-boxed workshop, not something discovered
-after the fact in a live/exploited system – every item above was fixed before this repo went public.
+after the fact in a live/exploited system – every item above was fixed before this repo went public,
+except the frontend-guard fix noted above, which came from a later QA pass (see `docs/qa/defect-reports.md`).
+
+### Known gaps (confirmed by code review, not yet fixed)
+A later review raised two further points. Checked by reading the relevant handlers and IAM config
+(no live cross-account/cross-token requests were made) – one turned out fine, two are real:
+- **Lambda IAM role is broader than it needs to be.** All three backend Lambdas (`api-handler`,
+  `report-sender`, `reports-handler`) share one inline policy (`lambda-basic-execution` in
+  `deployment_resources.json`) granting DynamoDB, S3, Cognito admin actions, SQS and SSM/KMS access with
+  `"Resource": "*"` – confirmed attached to all three execution roles, not just defined and unused.
+  Scoping it down to the specific tables/buckets/queues each Lambda actually touches is a real
+  least-privilege gap; not fixed here – splitting one shared policy into per-resource ARNs for three
+  Lambdas is a larger task than fits a QA pass.
+- **Report endpoints check role but not location.** `GET /reports`, `POST /reports/generate` and
+  `GET /reports/download` all correctly require the Waiter role (`RoleHelper.IsWaiter`), but none of them
+  check that the requested `locationId` is the waiter's own – any waiter can pull another location's
+  service/sales reports. Not fixed here.
+- **`GET /orders/{reservationId}`, checked for comparison, is fine.** It verifies the caller is either the
+  order's own customer or the reservation's assigned waiter (`GetOrderByReservationHandler.cs`) before
+  returning anything – no gap found there.
 
 ## Repository layout
 

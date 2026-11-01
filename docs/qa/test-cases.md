@@ -136,3 +136,22 @@ No row shows "Unknown customer" or "0 dishes" due to a failed background lookup;
 
 **Actual result:**
 Enrichment calls are now capped at concurrency 2 and all rows resolve correctly. See DR-07. (Known residual risk: the same unbounded-fan-out pattern is not yet fixed on the customer-facing `/reservations` page — see Known Issues in `defect-reports.md`.)
+
+---
+
+**ID: TC-08** – Verify waiter-only pages require the Waiter role, not just any login
+**Status:** Passed
+**Covers:** US05
+
+**Pre-conditions:**
+A Customer account and a Waiter account are both available.
+
+**Steps:**
+1. As a Customer, navigate directly to `/reports`, `/waiter-reservations`, and `/waiter-pre-order`.
+2. As a Waiter, navigate to the same three routes.
+
+**Expected result:**
+The Customer is redirected away from all three; the Waiter reaches all three normally.
+
+**Actual result:**
+All three routes now share `WaiterGuard`, which checks role `Waiter` and redirects non-waiters to `/main`. See DR-08.
