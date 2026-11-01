@@ -74,6 +74,8 @@ describe('PreOrdersService', () => {
     expect(putReq.request.body.orderItems).toEqual([{ dishId: dish.id, quantity: 1 }]);
     putReq.flush({});
 
+    expect(result?.orderId).toBe('order-1');
+
     // Must never have attempted to create a new order when one already exists.
     httpMock.expectNone(`${baseUrl}/orders`);
   });
