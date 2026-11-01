@@ -27,13 +27,24 @@ export function revertFormatTime(timeStr: string, dateStr: string): string {
     hour = 0; // Convert 12 AM to 0 hours
   }
 
-  const date = new Date();
-  date.setFullYear(new Date(dateStr).getFullYear());
-  date.setMonth(new Date(dateStr).getMonth());
-  date.setDate(new Date(dateStr).getDate());
-  date.setHours(hour, minute, 0, 0);
+  // IMPORTANT: build the date from year/month/day in a single constructor call, not via
+  // sequential setFullYear/setMonth/setDate on `new Date()` (today). Mutating today's date
+  // one field at a time rolls over whenever the target day-of-month doesn't exist yet in the
+  // date after only the month has been changed - e.g. running this on the 31st while setting
+  // the month to November (30 days) overflows to December 1st *before* setDate(3) runs, so
+  // editing a reservation to "Nov 3" silently saved it as "Dec 3". Reading year/month/day from
+  // the target dateStr up front and constructing the Date in one call avoids that entirely.
+  const target = new Date(dateStr);
+  const date = new Date(
+    target.getFullYear(),
+    target.getMonth(),
+    target.getDate(),
+    hour,
+    minute,
+    0,
+    0
+  );
 
-  console.log('Reverted time:', date.toISOString(), date);
   return date.toISOString();
 }
 

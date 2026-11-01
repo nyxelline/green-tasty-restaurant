@@ -1,4 +1,4 @@
-import { addMinutesIso, findClosestDuration, minutesBetween } from './date-helpers';
+import { addMinutesIso, findClosestDuration, minutesBetween, revertFormatTime } from './date-helpers';
 
 describe('date-helpers', () => {
   describe('addMinutesIso', () => {
@@ -53,6 +53,38 @@ describe('date-helpers', () => {
 
     it('returns zero for the same instant', () => {
       expect(minutesBetween('2026-10-17T12:00:00Z', '2026-10-17T12:00:00Z')).toBe(0);
+    });
+  });
+
+  describe('revertFormatTime', () => {
+    afterEach(() => {
+      jasmine.clock().uninstall();
+    });
+
+    it('does not roll over into the next month when "today" is a day that does not exist in the target month (regression)', () => {
+      // Reproduces: editing a reservation to Nov 3 while "today" is Oct 31 silently saved it
+      // as Dec 3. The old implementation built the result via sequential setFullYear/setMonth/
+      // setDate calls on `new Date()` (today) - setting the month to November while the day
+      // was still 31 overflowed past November's 30 days into December *before* setDate(3) ran.
+      jasmine.clock().install();
+      jasmine.clock().mockDate(new Date(2026, 9, 31, 12, 0, 0)); // Oct 31, 2026, local time
+
+      const result = new Date(revertFormatTime('11:00', '2026-11-03T12:00:00.000Z'));
+
+      expect(result.getMonth()).toBe(10); // November (0-indexed)
+      expect(result.getDate()).toBe(3);
+      expect(result.getHours()).toBe(11);
+      expect(result.getMinutes()).toBe(0);
+    });
+
+    it('converts a 24-hour time string onto the given date', () => {
+      const result = new Date(revertFormatTime('14:30', '2026-06-15T12:00:00.000Z'));
+
+      expect(result.getFullYear()).toBe(2026);
+      expect(result.getMonth()).toBe(5); // June
+      expect(result.getDate()).toBe(15);
+      expect(result.getHours()).toBe(14);
+      expect(result.getMinutes()).toBe(30);
     });
   });
 

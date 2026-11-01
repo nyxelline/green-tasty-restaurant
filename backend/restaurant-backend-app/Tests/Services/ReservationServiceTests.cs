@@ -22,6 +22,13 @@ namespace APIHandler.Tests.Services;
 
 public class ReservationServiceTests
 {
+    // Mirrors ReservationService.ReviewWaiterUserId: for a customer-made reservation
+    // (isWaiter: false), every reservation's WaiterId is forced to this id for the EPAM
+    // review, overriding the GetLeastBusyWaiterAsync result. UpdateWaiterReservationsAsync
+    // then looks this id up, not the least-busy waiter's, so tests must mock it too or
+    // FindWaiterByIdAsync returns null and the call NREs on waiter.Reservations.
+    private const string ReviewWaiterUserId = "d0dc396c-6011-707d-1532-f6c783d57d96";
+
     private readonly Mock<IReservationRepository> _mockReservationRepository = new();
     private readonly Mock<ILocationRepository> _mockLocationRepository = new();
     private readonly Mock<IUserRepository> _mockUserRepository = new();
@@ -83,6 +90,13 @@ public class ReservationServiceTests
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
             .ReturnsAsync(waiter);
 
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
+            .ReturnsAsync(waiter);
+
         _mockReservationRepository
             .Setup(r => r.GetReservationsByTableIdAsync(request.TableId))
             .ReturnsAsync([cancelledReservation]);
@@ -136,6 +150,13 @@ public class ReservationServiceTests
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
             .ReturnsAsync(waiter);
 
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
+            .ReturnsAsync(waiter);
+
         _mockReservationRepository
             .Setup(r => r.GetReservationsByTableIdAsync(request.TableId))
             .ReturnsAsync([]);
@@ -187,6 +208,13 @@ public class ReservationServiceTests
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
             .ReturnsAsync(waiter);
 
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
+            .ReturnsAsync(waiter);
+
         _mockReservationRepository
             .Setup(r => r.GetReservationsByTableIdAsync(request.TableId))
             .ReturnsAsync([]);
@@ -227,6 +255,13 @@ public class ReservationServiceTests
 
         _mockWaiterService
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
+            .ReturnsAsync(waiter);
+
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
             .ReturnsAsync(waiter);
 
         _mockReservationRepository
@@ -276,6 +311,13 @@ public class ReservationServiceTests
 
         _mockWaiterService
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
+            .ReturnsAsync(waiter);
+
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
             .ReturnsAsync(waiter);
 
         _mockReservationRepository
@@ -336,6 +378,13 @@ public class ReservationServiceTests
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
             .ReturnsAsync(waiter);
 
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
+            .ReturnsAsync(waiter);
+
         _mockReservationRepository
             .Setup(r => r.GetReservationsByTableIdAsync(newTable.Id))
             .ReturnsAsync([]);
@@ -391,6 +440,13 @@ public class ReservationServiceTests
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
             .ReturnsAsync(waiter);
 
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
+            .ReturnsAsync(waiter);
+
         _mockReservationRepository
             .Setup(r => r.GetReservationsByTableIdAsync(request.TableId))
             .ReturnsAsync([]);
@@ -431,6 +487,13 @@ public class ReservationServiceTests
 
         _mockWaiterService
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
+            .ReturnsAsync(waiter);
+
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
             .ReturnsAsync(waiter);
 
         _mockReservationRepository
@@ -479,6 +542,13 @@ public class ReservationServiceTests
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
             .ReturnsAsync(waiter);
 
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
+            .ReturnsAsync(waiter);
+
         _mockReservationRepository
             .Setup(r => r.GetReservationsByTableIdAsync(request.TableId))
             .ReturnsAsync([]);
@@ -520,6 +590,13 @@ public class ReservationServiceTests
 
         _mockWaiterService
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
+            .ReturnsAsync(waiter);
+
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
             .ReturnsAsync(waiter);
 
         _mockReservationRepository
@@ -598,6 +675,13 @@ public class ReservationServiceTests
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
             .ReturnsAsync(waiter);
 
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
+            .ReturnsAsync(waiter);
+
         _mockLocationRepository
             .Setup(r => r.GetTableByIdAsync(newTableId))
             .ReturnsAsync((Table?)null);
@@ -667,6 +751,13 @@ public class ReservationServiceTests
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
             .ReturnsAsync(waiter);
 
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
+            .ReturnsAsync(waiter);
+
         _mockLocationRepository
             .Setup(r => r.GetTableByIdAsync(oldTable.Id))
             .ReturnsAsync(oldTable);
@@ -699,6 +790,13 @@ public class ReservationServiceTests
 
         _mockWaiterService
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
+            .ReturnsAsync(waiter);
+
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
             .ReturnsAsync(waiter);
 
         _mockLocationRepository
@@ -749,6 +847,13 @@ public class ReservationServiceTests
 
         _mockWaiterService
             .Setup(r => r.FindWaiterByIdAsync(waiter.UserId))
+            .ReturnsAsync(waiter);
+
+        // Customer-made reservations (isWaiter: false) get their WaiterId forced to the
+        // review waiter id (see ReservationService.ReviewWaiterUserId), so that is the id
+        // UpdateWaiterReservationsAsync actually looks up - not waiter.UserId above.
+        _mockWaiterService
+            .Setup(r => r.FindWaiterByIdAsync(ReviewWaiterUserId))
             .ReturnsAsync(waiter);
 
         _mockLocationRepository

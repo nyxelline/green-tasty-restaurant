@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, from, map, mergeMap, Observable, of, switchMap, toArray } from 'rxjs';
 
 import { AuthenticationService } from '@app/auth/services/authentication.service';
 import { CardReservationComponent } from '@app/components/reservations/card-reservation/card-reservation.component';
@@ -40,6 +40,7 @@ import {
   generateTimeOptions,
   revertFormatTime,
 } from '@app/shared/helpers/date-helpers';
+import { getServerErrorMessage } from '@app/shared/helpers/http-error-helpers';
 
 import { FeedbackQrModalComponent } from './feedback-qr-modal/feedback-qr-modal.component';
 import {LocationsService} from '@app/services/locations/locations.service';
@@ -364,8 +365,15 @@ export class WaiterDashboardComponent implements OnInit {
           );
           this.toast.success('Reservation status updated successfully.', 'Success');
         },
-        error: () =>
-          this.toast.error('The reservation status could not be updated.', 'Reservation'),
+        // The backend blocks some transitions with a specific, actionable reason - e.g.
+        // "Cannot complete reservation without feedback or an order." Swallowing that into a
+        // generic "could not be updated" message left the waiter with no idea what to do next.
+        error: (error: unknown) => {
+          const message =
+            (error instanceof HttpErrorResponse && getServerErrorMessage(error)) ||
+            'The reservation status could not be updated.';
+          this.toast.error(message, 'Reservation');
+        },
       });
   }
 
@@ -466,6 +474,21 @@ export class WaiterDashboardComponent implements OnInit {
     this.loadReservations(() => this.isRefreshing.set(false));
   }
 
+  // Each reservation's enrichment (enrichReservation) itself fans out to 3 requests
+  // (feedback, customer name, pre-order). With forkJoin over the whole reservations list,
+  // a waiter with a realistic amount of history (dozens of reservations) fired all of them
+  // at once - tens to a couple hundred concurrent HTTP calls in one burst. Measured directly
+  // against the deployed API: ~195 concurrent requests failed ~80% of the time, 18 concurrent
+  // (concurrency 6 here) still failed ~20% of the time, and 6 concurrent (concurrency 2) came
+  // back with zero network failures across repeated runs. This points at a low concurrency
+  // limit on the API side (Lambda reserved concurrency or API Gateway throttling) - a request
+  // that gets throttled there comes back without CORS headers, which the browser reports as a
+  // CORS failure/status 0 rather than the real throttling response, which is what surfaced as
+  // every reservation showing "Unknown customer" and "Pre-order: 0 dishes". 2 is the empirically
+  // safe concurrency for this environment; raise it only after confirming the API-side limit
+  // that's actually causing this has been raised too.
+  private static readonly ENRICH_CONCURRENCY = 2;
+
   private loadReservations(onComplete?: () => void): void {
     const waiterName = this.waiterName();
 
@@ -475,8 +498,12 @@ export class WaiterDashboardComponent implements OnInit {
         switchMap((reservations) =>
           reservations.length === 0
             ? of([] as ReservationCustomer[])
-            : forkJoin(
-              reservations.map((reservation) => this.enrichReservation(reservation, waiterName))
+            : from(reservations).pipe(
+              mergeMap(
+                (reservation) => this.enrichReservation(reservation, waiterName),
+                WaiterDashboardComponent.ENRICH_CONCURRENCY
+              ),
+              toArray()
             )
         ),
         takeUntilDestroyed(this.destroyRef)

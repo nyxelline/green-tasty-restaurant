@@ -36,7 +36,8 @@ public class GuestSessionService(
     ITableRepository tableRepository,
     IOrderRepository orderRepository,
     IUserService userService,
-    IAmazonDynamoDB dynamoDbClient) : IGuestSessionService
+    IAmazonDynamoDB dynamoDbClient,
+    APIHandler.Services.Locations.ILocationService locationService) : IGuestSessionService
 {
     public async Task<bool> IsAuthorizedAsync(string guestSessionToken, string guestSessionId)
     {
@@ -438,8 +439,15 @@ public class GuestSessionService(
             throw new GroupReservationSubmittedException();
         }
 
+        // The owner may invite guests and never order anything personally - the table total
+        // and submit button are both shown regardless of what the owner has in their own cart,
+        // so refusing to submit a guest-only group order here (as the written spec's "order не
+        // знайдено -> 400" literally says) blocked a perfectly normal use case with a toast that
+        // told the owner to "try again", which could never succeed on its own. If no Order row
+        // exists yet for the owner, create an empty draft one (mirrors AddOrderAsync) instead of
+        // refusing outright; the merged guest dishes are added onto it below as usual.
         var order = await orderRepository.GetOrderByReservationIdAsync(reservationId)
-            ?? throw new ValidationException("Order not found.");
+            ?? await CreateEmptyOwnerOrderAsync(userId, reservationId);
 
         var submittedGuestSessions = (await guestSessionRepository.GetAllByGroupReservationIdAsync(groupReservationId))
             .Where(session => !session.IsOwnerSession && session.IsSubmitted)
@@ -740,6 +748,26 @@ public class GuestSessionService(
             ?? throw new ValidationException("Associated table not found.");
 
         return table.LocationId;
+    }
+
+    private async Task<Order> CreateEmptyOwnerOrderAsync(string customerId, string reservationId)
+    {
+        var reservation = await reservationRepository.GetReservationByIdAsync(reservationId)
+            ?? throw new ReservationNotFoundException("Parent reservation not found.");
+
+        var location = await locationService.GetLocationByTableIdAsync(reservation.TableId);
+        var reservationTime = $"{reservation.StartTime:MMM dd, yyyy, h:mm tt} - {reservation.EndTime:h:mm tt}";
+
+        return new Order
+        {
+            OrderId = Guid.NewGuid().ToString(),
+            CustomerId = customerId,
+            ReservationId = reservationId,
+            ReservationAddress = location.Address,
+            ReservationTime = reservationTime,
+            Dishes = new List<OrderItem>(),
+            Status = OrderStatus.Created,
+        };
     }
 
     

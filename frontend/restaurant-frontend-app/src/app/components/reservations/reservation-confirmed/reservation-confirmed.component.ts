@@ -32,6 +32,10 @@ import { ModalComponent } from '@app/shared/custom-components/modal/modal.compon
 export class ReservationConfirmedComponent {
   readonly reservation = input.required<Reservation>();
   readonly customClass = input('');
+  // The Reservation model only carries tableId (a raw UUID) - the caller passes the
+  // already-known table number separately so the confirmation text can show "Table 4"
+  // instead of "Table 1df1155c-9795-4727-97d2-eab7a75ed15a".
+  readonly tableNumber = input<number | undefined>(undefined);
 
   readonly closed = output<void>();
   readonly editReservation = output<void>();

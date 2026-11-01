@@ -69,7 +69,11 @@
         at
 
         <strong class="bold-text">
-          Table {{ reservation().tableId }}
+          @if (tableNumber(); as number) {
+            Table {{ number }}
+          } @else {
+            your table
+          }
         </strong>
 
         has been successfully made.

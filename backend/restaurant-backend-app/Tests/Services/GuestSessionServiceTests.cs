@@ -33,6 +33,7 @@ public class GuestSessionServiceTests
     private readonly Mock<APIHandler.Repositories.Orders.IOrderRepository> _mockOrderRepository = new();
     private readonly Mock<APIHandler.Services.Auth.IUserService> _mockUserService = new();
     private readonly Mock<IAmazonDynamoDB> _mockDynamoDbClient = new();
+    private readonly Mock<APIHandler.Services.Locations.ILocationService> _mockLocationService = new();
     private readonly GuestSessionService _guestSessionService;
 
     public GuestSessionServiceTests()
@@ -49,7 +50,8 @@ public class GuestSessionServiceTests
             _mockTableRepository.Object,
             _mockOrderRepository.Object,
             _mockUserService.Object,
-            _mockDynamoDbClient.Object);
+            _mockDynamoDbClient.Object,
+            _mockLocationService.Object);
 
         _mockDynamoDbClient
             .Setup(d => d.TransactWriteItemsAsync(It.IsAny<TransactWriteItemsRequest>(), It.IsAny<System.Threading.CancellationToken>()))
@@ -1080,5 +1082,57 @@ public class GuestSessionServiceTests
 
         await Assert.ThrowsAsync<GuestSessionNotFoundException>(() =>
             _guestSessionService.GetGuestBillAsync(guestSessionId));
+    }
+
+    // Regression test for: the owner could invite guests and never order anything personally
+    // for themselves, yet Submit always failed with "Order not found." (surfaced to the owner
+    // as a generic "please try again" toast that could never succeed) because no Order row
+    // existed for the reservation until the owner placed a regular pre-order of their own first.
+    [Theory]
+    [AutoData]
+    public async Task SubmitGroupPreOrderAsync_OwnerHasNoOrderYet_CreatesDraftOrderAndMergesGuestDishes(
+        GroupReservation group, Reservation parentReservation, Table table, Location location,
+        GuestSession guestSession, Dish dish)
+    {
+        const string ownerId = "owner-user-id";
+
+        group.Status = GroupReservationStatus.Open;
+        group.ReservationId = parentReservation.Id;
+
+        parentReservation.CustomerId = ownerId;
+        parentReservation.TableId = table.Id;
+        parentReservation.StartTime = DateTime.UtcNow.AddHours(3);
+        parentReservation.EndTime = parentReservation.StartTime.AddHours(1);
+
+        table.LocationId = location.Id;
+
+        guestSession.GroupReservationId = group.GroupReservationId;
+        guestSession.IsOwnerSession = false;
+        guestSession.IsSubmitted = true;
+        guestSession.Dishes = [new OrderItem { DishId = dish.Id, Quantity = 2, State = OrderItemState.Pending }];
+
+        _mockGroupReservationRepository.Setup(r => r.GetGroupReservationByIdAsync(group.GroupReservationId)).ReturnsAsync(group);
+        _mockReservationRepository.Setup(r => r.GetReservationByIdAsync(parentReservation.Id)).ReturnsAsync(parentReservation);
+        _mockOrderRepository.Setup(r => r.GetOrderByReservationIdAsync(parentReservation.Id)).ReturnsAsync((Order?)null);
+        _mockLocationService.Setup(s => s.GetLocationByTableIdAsync(table.Id)).ReturnsAsync(location);
+        _mockGuestSessionRepository
+            .Setup(r => r.GetAllByGroupReservationIdAsync(group.GroupReservationId))
+            .ReturnsAsync([guestSession]);
+
+        var result = (await _guestSessionService.SubmitGroupPreOrderAsync(ownerId, group.GroupReservationId, parentReservation.Id)).ToList();
+
+        Assert.Single(result);
+        Assert.Equal(dish.Id, result[0].DishId);
+        Assert.Equal(2, result[0].Quantity);
+
+        _mockOrderRepository.Verify(r => r.SaveOrderAsync(It.Is<Order>(o =>
+            o.ReservationId == parentReservation.Id &&
+            o.CustomerId == ownerId &&
+            o.Status == OrderStatus.SubmittedByCustomer &&
+            o.Dishes.Count == 1 &&
+            o.Dishes[0].DishId == dish.Id &&
+            o.Dishes[0].Quantity == 2)), Times.Once);
+
+        Assert.Equal(GroupReservationStatus.Submitted, group.Status);
     }
 }

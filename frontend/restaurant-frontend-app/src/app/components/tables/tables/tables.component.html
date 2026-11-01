@@ -169,6 +169,7 @@
 @if (showReservationConfirmed && reservation) {
   <app-reservation-confirmed
     [reservation]="reservation"
+    [tableNumber]="selectedTable?.tableNumber"
     (closed)="onCloseReservationConfirmed()"
     (editReservation)="onEditReservation()"
     (cancelReservation)="onCancelReservation()"

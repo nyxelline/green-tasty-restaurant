@@ -72,6 +72,7 @@
   ) {
   <app-reservation-confirmed
     [reservation]="selectedReservationAsReservation()!"
+    [tableNumber]="selectedTable()?.tableNumber"
     (closed)="closeReservationConfirmed()"
     (editReservation)="editConfirmedReservation()"
     (cancelReservation)="cancelConfirmedReservation()"
